@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Plus, HelpCircle } from "lucide-react";
 import HealthMetricCard from "@/components/dashboard/HealthMetricCard";
 import HealthProgressChart from "@/components/dashboard/HealthProgressChart";
+import HealthScoresTrendChart from "@/components/dashboard/HealthScoresTrendChart";
+import HealthScoresSpiderChart from "@/components/dashboard/HealthScoresSpiderChart";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import AppointmentList from "@/components/dashboard/AppointmentList";
 import PrescriptionList from "@/components/dashboard/PrescriptionList";
@@ -159,7 +161,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
         {/* Health Progress Chart */}
         {metrics && metrics.length > 0 && (
           <HealthProgressChart healthMetrics={metrics} />
@@ -170,6 +172,14 @@ export default function Dashboard() {
           <ActivityFeed updates={updates} />
         )}
       </div>
+      
+      {/* Enhanced Health Scores Visualization */}
+      {metrics && metrics.length > 0 && (
+        <div className="grid grid-cols-1 gap-6 mb-6">
+          <HealthScoresTrendChart healthMetrics={metrics} />
+          <HealthScoresSpiderChart healthMetrics={metrics} />
+        </div>
+      )}
 
       {/* Upcoming Appointments & Prescriptions */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-6">
