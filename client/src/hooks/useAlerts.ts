@@ -1,0 +1,91 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { alertsApi } from "@/lib/api";
+import { useAuth } from "./useAuth";
+import { useToast } from "./use-toast";
+
+export function useAlerts() {
+  const { profile } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  // Get all patient device alerts
+  const { 
+    data: alerts,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: ['/api/device-alerts/patient', profile?.id],
+    enabled: !!profile?.id,
+    staleTime: 1000 * 60 * 1, // 1 minute - alerts are important
+  });
+
+  // Get unread patient device alerts
+  const { 
+    data: unreadAlerts,
+    isLoading: isLoadingUnread,
+    error: unreadError
+  } = useQuery({
+    queryKey: ['/api/device-alerts/patient', profile?.id, 'unread'],
+    enabled: !!profile?.id,
+    staleTime: 1000 * 60 * 1, // 1 minute
+  });
+
+  // Mark device alert as read mutation
+  const dismissMutation = useMutation({
+    mutationFn: (alertId: number) => 
+      alertsApi.markDeviceAlertAsRead(alertId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/device-alerts/patient', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/device-alerts/patient', profile?.id, 'unread'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to dismiss alert",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Resolve device alert mutation
+  const resolveMutation = useMutation({
+    mutationFn: ({ id, notes }: { id: number; notes: string }) => 
+      alertsApi.resolveDeviceAlert(id, notes),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/device-alerts/patient', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/device-alerts/patient', profile?.id, 'unread'] });
+      toast({
+        title: "Alert resolved",
+        description: "The device alert has been resolved",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to resolve alert",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Mark an alert as read (dismiss)
+  const dismissAlert = async (alertId: number) => {
+    return dismissMutation.mutateAsync(alertId);
+  };
+
+  // Resolve an alert with notes
+  const resolveAlert = async (alertId: number, notes: string) => {
+    return resolveMutation.mutateAsync({ id: alertId, notes });
+  };
+
+  return {
+    alerts,
+    unreadAlerts,
+    isLoading: isLoading || isLoadingUnread,
+    error: error || unreadError,
+    dismissAlert,
+    resolveAlert,
+    isDismissing: dismissMutation.isPending,
+    isResolving: resolveMutation.isPending,
+  };
+}
