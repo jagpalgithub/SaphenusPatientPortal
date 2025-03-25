@@ -561,9 +561,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up test routes first to ensure they're available even if other routes have issues
   setupTestRoutes(app);
   
-  // Add a direct root route for basic connectivity testing
-  app.get('/', (req, res) => {
-    res.send('Saphenus Medical Technology - Patient Management System Server is running!');
+  // Add a health check route for API testing but don't interfere with frontend routing
+  app.get('/api/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      message: 'Saphenus Medical Technology - Patient Management System Server is running!'
+    });
   });
   
   // Set up all routes
