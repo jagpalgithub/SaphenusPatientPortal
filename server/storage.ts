@@ -132,11 +132,437 @@ export class MemStorage implements IStorage {
       supportRequest: 1
     };
     
-    // Initialize some test data
-    this.initializeTestData();
+    // Initialize with synchronous methods to avoid Promise issues in constructor
+    this.initializeTestDataSync();
   }
 
-  private initializeTestData() {
+  // This is a synchronous version of our initialization function to avoid Promise issues
+  private initializeTestDataSync() {
+    // Create users
+    const patientUser: User = {
+      id: this.currentIds.user++,
+      username: "anna.wagner",
+      password: "password",
+      email: "anna@example.com",
+      firstName: "Anna",
+      lastName: "Wagner",
+      role: "patient",
+      profileImage: null
+    };
+    this.users.set(patientUser.id, patientUser);
+    
+    const doctorUser: User = {
+      id: this.currentIds.user++,
+      username: "dr.mueller",
+      password: "password",
+      email: "mueller@saphenus.com",
+      firstName: "Andreas",
+      lastName: "Müller",
+      role: "doctor",
+      profileImage: null
+    };
+    this.users.set(doctorUser.id, doctorUser);
+    
+    const nurseUser: User = {
+      id: this.currentIds.user++,
+      username: "nurse.schmidt",
+      password: "password",
+      email: "schmidt@saphenus.com",
+      firstName: "Eva",
+      lastName: "Schmidt",
+      role: "doctor", // Using doctor role for access control
+      profileImage: null
+    };
+    this.users.set(nurseUser.id, nurseUser);
+    
+    const technicianUser: User = {
+      id: this.currentIds.user++,
+      username: "tech.gruber",
+      password: "password",
+      email: "gruber@saphenus.com",
+      firstName: "Thomas",
+      lastName: "Gruber",
+      role: "doctor", // Using doctor role for access control
+      profileImage: null
+    };
+    this.users.set(technicianUser.id, technicianUser);
+    
+    // Create patient record
+    const anna: Patient = {
+      id: this.currentIds.patient++,
+      userId: patientUser.id,
+      dateOfBirth: "1985-06-15",
+      insuranceNumber: "AT1234567890",
+      address: "Rotenturmstraße 15/8, 1010 Vienna, Austria",
+      phone: "+43 664 1234567",
+      emergencyContact: "Michael Wagner (Husband), +43 664 7654321",
+      amputationType: "Below Knee - Right Leg",
+      amputationDate: "2022-01-10",
+      prostheticType: "Suralis-Enhanced Lower Limb Prosthesis",
+      prostheticSerialNumber: "SR-PLM-2022-0045",
+      suralisSerialNumber: "SRL-V2-2022-A045"
+    };
+    this.patients.set(anna.id, anna);
+    
+    // Create medical staff records
+    const doctor: MedicalStaff = {
+      id: this.currentIds.medicalStaff++,
+      userId: doctorUser.id,
+      specialization: "Orthopedic Surgeon & Prosthetics Specialist",
+      licenseNumber: "MD-AT-12345",
+      availability: {
+        monday: ["09:00-12:00", "13:00-17:00"],
+        tuesday: ["09:00-12:00", "13:00-17:00"],
+        wednesday: ["09:00-12:00", "13:00-17:00"],
+        thursday: ["09:00-12:00", "13:00-17:00"],
+        friday: ["09:00-12:00", "13:00-15:00"]
+      }
+    };
+    this.medicalStaff.set(doctor.id, doctor);
+    
+    const nurse: MedicalStaff = {
+      id: this.currentIds.medicalStaff++,
+      userId: nurseUser.id,
+      specialization: "Rehabilitation Nurse",
+      licenseNumber: "RN-AT-54321",
+      availability: {
+        monday: ["08:00-16:00"],
+        tuesday: ["08:00-16:00"],
+        wednesday: ["08:00-16:00"],
+        thursday: ["08:00-16:00"],
+        friday: ["08:00-16:00"]
+      }
+    };
+    this.medicalStaff.set(nurse.id, nurse);
+    
+    const technician: MedicalStaff = {
+      id: this.currentIds.medicalStaff++,
+      userId: technicianUser.id,
+      specialization: "Suralis System Technician",
+      licenseNumber: "TECH-SAP-4578",
+      availability: {
+        monday: ["10:00-18:00"],
+        wednesday: ["10:00-18:00"],
+        friday: ["10:00-18:00"]
+      }
+    };
+    this.medicalStaff.set(technician.id, technician);
+    
+    const currentDate = new Date();
+    
+    // Add 6 months of health metrics data with realistic trends
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      
+      // Mobility score gradually improving (0-100 scale)
+      const mobilityScore = Math.min(95, 65 + (i * 5));
+      
+      // Phantom pain score gradually decreasing (0-10 scale, 0 is no pain)
+      const phantomPainScore = Math.max(1, 8 - i);
+      
+      // Sensor sensitivity gradually improving (0-100 scale)
+      const sensorSensitivity = Math.min(98, 75 + (i * 4));
+      
+      // Step count increasing as patient becomes more mobile
+      const stepCount = 3000 + (i * 800);
+      
+      // Gait stability improving (0-100 scale)
+      const gaitStability = Math.min(95, 70 + (i * 4));
+      
+      const notes = i === 0 
+        ? "Latest assessment shows significant improvement in all metrics. Patient reports much better quality of life with improved gait stability and tactile feedback."
+        : i === 1 
+          ? "Suralis system recalibrated to increase sensitivity. Patient reports improved sensation."
+          : i === 3
+            ? "Patient experienced some phantom pain after extended walking."
+            : null;
+      
+      const metric: HealthMetric = {
+        id: this.currentIds.healthMetric++,
+        patientId: anna.id,
+        recordDate: date,
+        mobilityScore,
+        phantomPainScore,
+        sensorSensitivity,
+        stepCount,
+        gaitStability,
+        notes
+      };
+      this.healthMetrics.set(metric.id, metric);
+    }
+    
+    // Add past, current, and future appointments
+    const twoMonthsAgo = new Date(currentDate);
+    twoMonthsAgo.setMonth(currentDate.getMonth() - 2);
+    
+    const pastAppointment1: Appointment = {
+      id: this.currentIds.appointment++,
+      patientId: anna.id,
+      doctorId: doctor.id,
+      dateTime: new Date(twoMonthsAgo.getFullYear(), twoMonthsAgo.getMonth(), 15, 10, 30),
+      duration: 60,
+      purpose: "Initial Suralis System Assessment",
+      status: "completed",
+      notes: "Patient adjusting well to the new sensory feedback system. Recommended physical therapy.",
+      fee: 200.00,
+      feePaid: true
+    };
+    this.appointments.set(pastAppointment1.id, pastAppointment1);
+    
+    const oneMonthAgo = new Date(currentDate);
+    oneMonthAgo.setMonth(currentDate.getMonth() - 1);
+    
+    const pastAppointment2: Appointment = {
+      id: this.currentIds.appointment++,
+      patientId: anna.id,
+      doctorId: technician.id,
+      dateTime: new Date(oneMonthAgo.getFullYear(), oneMonthAgo.getMonth(), 10, 14, 0),
+      duration: 45,
+      purpose: "Suralis System Calibration",
+      status: "completed",
+      notes: "Adjusted sensitivity parameters. Patient reported immediate improvement in tactile sensation.",
+      fee: 150.00,
+      feePaid: true
+    };
+    this.appointments.set(pastAppointment2.id, pastAppointment2);
+    
+    // Current/upcoming appointments
+    const upcomingAppointment1: Appointment = {
+      id: this.currentIds.appointment++,
+      patientId: anna.id,
+      doctorId: doctor.id,
+      dateTime: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 5, 14, 30),
+      duration: 30,
+      purpose: "Routine Check-up",
+      status: "scheduled",
+      notes: "Follow-up on recent calibration and review latest metrics data",
+      fee: 120.00,
+      feePaid: false
+    };
+    this.appointments.set(upcomingAppointment1.id, upcomingAppointment1);
+    
+    const upcomingAppointment2: Appointment = {
+      id: this.currentIds.appointment++,
+      patientId: anna.id,
+      doctorId: technician.id,
+      dateTime: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 12, 10, 0),
+      duration: 45,
+      purpose: "Sensor Calibration & Firmware Update",
+      status: "scheduled",
+      notes: "Scheduled maintenance and update to latest Suralis system firmware",
+      fee: 150.00,
+      feePaid: false
+    };
+    this.appointments.set(upcomingAppointment2.id, upcomingAppointment2);
+    
+    // Add active prescriptions
+    const prescription1: Prescription = {
+      id: this.currentIds.prescription++,
+      patientId: anna.id,
+      doctorId: doctor.id,
+      medicationName: "Gabapentin",
+      dosage: "300mg",
+      frequency: "1 capsule three times daily",
+      startDate: new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 15).toISOString().split('T')[0],
+      endDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 15).toISOString().split('T')[0],
+      isActive: true,
+      purpose: "For phantom limb pain management",
+      refillsRemaining: 2,
+      notes: null,
+      type: "medication"
+    };
+    this.prescriptions.set(prescription1.id, prescription1);
+    
+    const prescription2: Prescription = {
+      id: this.currentIds.prescription++,
+      patientId: anna.id,
+      doctorId: doctor.id,
+      medicationName: "Physical Therapy",
+      dosage: "45 minutes",
+      frequency: "3 sessions per week",
+      startDate: new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1).toISOString().split('T')[0],
+      endDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 1).toISOString().split('T')[0],
+      isActive: true,
+      purpose: "For gait training and mobility improvement",
+      refillsRemaining: 12,
+      notes: null,
+      type: "physical_therapy"
+    };
+    this.prescriptions.set(prescription2.id, prescription2);
+    
+    // Add device alerts
+    const alert1: DeviceAlert = {
+      id: this.currentIds.deviceAlert++,
+      patientId: anna.id,
+      timestamp: new Date(),
+      alertType: "calibration",
+      message: "Your Suralis sensory feedback system needs a calibration. Please schedule an appointment with Dr. Müller.",
+      severity: "medium",
+      isRead: false,
+      isResolved: false,
+      resolutionNotes: null
+    };
+    this.deviceAlerts.set(alert1.id, alert1);
+    
+    const alert2: DeviceAlert = {
+      id: this.currentIds.deviceAlert++,
+      patientId: anna.id,
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1),
+      alertType: "maintenance",
+      message: "Battery level is low (15%). Please charge your device as soon as possible.",
+      severity: "low",
+      isRead: false,
+      isResolved: false,
+      resolutionNotes: null
+    };
+    this.deviceAlerts.set(alert2.id, alert2);
+    
+    // Add activity updates
+    const update1: Update = {
+      id: this.currentIds.update++,
+      patientId: anna.id,
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 3, 10, 23),
+      type: "doctor_feedback",
+      content: "Your mobility score has improved significantly. The adjustments we made to your Suralis system are working well.",
+      sourceId: doctor.id,
+      sourceType: "medical_staff",
+      sourceName: "Dr. Andreas Müller",
+      sourceImage: null
+    };
+    this.updates.set(update1.id, update1);
+    
+    const update2: Update = {
+      id: this.currentIds.update++,
+      patientId: anna.id,
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 5, 14, 45),
+      type: "prescription_update",
+      content: "Your pain medication prescription has been updated. Please check the Prescriptions section for details.",
+      sourceId: null,
+      sourceType: "system",
+      sourceName: "Prescription Updated",
+      sourceImage: null
+    };
+    this.updates.set(update2.id, update2);
+    
+    const update3: Update = {
+      id: this.currentIds.update++,
+      patientId: anna.id,
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 12, 9, 30),
+      type: "system_calibration",
+      content: "Your Suralis system has been successfully calibrated. Sensitivity has been adjusted to 78%.",
+      sourceId: null,
+      sourceType: "system",
+      sourceName: "System Calibration Complete",
+      sourceImage: null
+    };
+    this.updates.set(update3.id, update3);
+    
+    const update4: Update = {
+      id: this.currentIds.update++,
+      patientId: anna.id,
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1, 16, 15),
+      type: "achievement",
+      content: "Congratulations! You've reached 7,000 steps in a day - a new personal record since your amputation.",
+      sourceId: null,
+      sourceType: "system",
+      sourceName: "Achievement Unlocked",
+      sourceImage: null
+    };
+    this.updates.set(update4.id, update4);
+    
+    // Add messages between Anna and her doctor
+    const message1: Message = {
+      id: this.currentIds.message++,
+      senderId: patientUser.id,
+      receiverId: doctorUser.id,
+      content: "Dr. Müller, I've been experiencing some tingling sensations in my residual limb after walking for more than 20 minutes. Is this normal with the Suralis system?",
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 2, 15, 23),
+      isRead: true
+    };
+    this.messages.set(message1.id, message1);
+    
+    const message2: Message = {
+      id: this.currentIds.message++,
+      senderId: doctorUser.id,
+      receiverId: patientUser.id,
+      content: "Hello Anna, this is normal as your nerves adjust to the new sensory input. It indicates the system is working properly. If the sensation becomes uncomfortable or painful, please let me know immediately.",
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 2, 16, 45),
+      isRead: true
+    };
+    this.messages.set(message2.id, message2);
+    
+    const message3: Message = {
+      id: this.currentIds.message++,
+      senderId: patientUser.id,
+      receiverId: doctorUser.id,
+      content: "Thank you for the quick response! That's reassuring. The sensations aren't painful, just surprising sometimes. I'm really happy with how much more I can feel with the prosthetic now.",
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 2, 17, 20),
+      isRead: true
+    };
+    this.messages.set(message3.id, message3);
+    
+    const message4: Message = {
+      id: this.currentIds.message++,
+      senderId: doctorUser.id,
+      receiverId: patientUser.id,
+      content: "That's excellent news, Anna! The Suralis system's ability to restore sensory feedback is truly remarkable. Remember to complete your daily calibration exercises in the app to keep improving your sensitivity.",
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1, 9, 15),
+      isRead: false
+    };
+    this.messages.set(message4.id, message4);
+    
+    // Messages with the technician
+    const message5: Message = {
+      id: this.currentIds.message++,
+      senderId: patientUser.id,
+      receiverId: technicianUser.id,
+      content: "Hello Mr. Gruber, I noticed the battery on my Suralis device is draining faster than usual. Is there something I should check?",
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 3, 11, 10),
+      isRead: true
+    };
+    this.messages.set(message5.id, message5);
+    
+    const message6: Message = {
+      id: this.currentIds.message++,
+      senderId: technicianUser.id,
+      receiverId: patientUser.id,
+      content: "Hi Anna, check if any background apps are running that might be accessing the Suralis system continuously. Also, make sure you're using the official charger provided. If the issue persists, we should look at the device during your next appointment.",
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 3, 13, 45),
+      isRead: true
+    };
+    this.messages.set(message6.id, message6);
+    
+    // Add support requests
+    const supportRequest1: SupportRequest = {
+      id: this.currentIds.supportRequest++,
+      patientId: anna.id,
+      subject: "Problems pairing Suralis app with new smartphone",
+      description: "I recently switched from an Android phone to an iPhone and I'm having trouble connecting the Suralis app to my prosthetic. The app doesn't seem to recognize the device.",
+      status: "open",
+      priority: "medium",
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 4, 14, 30),
+      assignedToId: null,
+      resolutionNotes: null
+    };
+    this.supportRequests.set(supportRequest1.id, supportRequest1);
+    
+    const supportRequest2: SupportRequest = {
+      id: this.currentIds.supportRequest++,
+      patientId: anna.id,
+      subject: "Request for additional Suralis charging cables",
+      description: "I would like to purchase an additional charging cable for my office. Is this possible?",
+      status: "resolved",
+      priority: "low",
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 15, 9, 45),
+      assignedToId: technician.id,
+      resolutionNotes: "Additional charging cable sent to patient's address. Invoice included in package."
+    };
+    this.supportRequests.set(supportRequest2.id, supportRequest2);
+  }
+  
+  // Keeping this for reference, not used anymore as we're using the sync version
+  private async initializeTestData() {
     // Create initial users (doctors and a patient)
     const patientUser = this.createUser({
       username: "anna.wagner",
