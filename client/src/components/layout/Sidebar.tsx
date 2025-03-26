@@ -20,11 +20,17 @@ interface NavItemProps {
   label: string;
   active: boolean;
   badge?: number;
+  onClick?: () => void;
 }
 
-const NavItem = ({ href, icon, label, active, badge }: NavItemProps) => {
+const NavItem = ({ href, icon, label, active, badge, onClick }: NavItemProps) => {
+  // This will handle both the navigation and any additional click effects like closing menus
+  const handleClick = () => {
+    if (onClick) onClick();
+  };
+
   return (
-    <Link href={href}>
+    <Link href={href} onClick={handleClick}>
       <div
         className={cn(
           "flex items-center px-2 py-2 text-sm font-medium rounded-md cursor-pointer",
@@ -45,88 +51,132 @@ const NavItem = ({ href, icon, label, active, badge }: NavItemProps) => {
   );
 };
 
-export default function Sidebar() {
+// Base sidebar component with common functionality
+function BaseSidebar({ onNavItemClick }: { onNavItemClick?: () => void }) {
   const [location] = useLocation();
   const { user } = useAuth();
   const { unreadAlerts } = useAlerts();
-
-  return (
-    <aside className="hidden md:flex md:flex-shrink-0">
-      <div className="flex flex-col w-64 border-r border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        {/* Logo */}
-        <div className="flex items-center justify-center h-16 px-4 border-b border-neutral-200 dark:border-gray-700 bg-primary dark:bg-primary">
-          <span className="text-lg font-semibold text-white dark:text-white">Saphenus PMS</span>
-        </div>
-
-        {/* User Profile */}
-        <div className="flex items-center px-4 py-3 border-b border-neutral-200 dark:border-gray-700">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.profileImage} alt={`${user?.firstName} ${user?.lastName}`} />
-            <AvatarFallback>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="ml-3">
-            <p className="text-sm font-medium text-neutral-800 dark:text-gray-200">
-              {user?.firstName} {user?.lastName}
-            </p>
-            <p className="text-xs font-medium text-neutral-500 dark:text-gray-400">
-              {user?.role === "patient" ? "Patient" : "Doctor"}
-            </p>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto scrollbar-hide">
-          <NavItem
-            href="/"
-            icon={<Home className="text-inherit" />}
-            label="Dashboard"
-            active={location === "/"}
-          />
-          <NavItem
-            href="/timeline"
-            icon={<Clock className="text-inherit" />}
-            label="Treatment Timeline"
-            active={location === "/timeline"}
-          />
-          <NavItem
-            href="/prescriptions"
-            icon={<FileText className="text-inherit" />}
-            label="Prescriptions"
-            active={location === "/prescriptions"}
-          />
-          <NavItem
-            href="/appointments"
-            icon={<Calendar className="text-inherit" />}
-            label="Appointments"
-            active={location === "/appointments"}
-          />
-          <NavItem
-            href="/messages"
-            icon={<MessageSquare className="text-inherit" />}
-            label="Messages"
-            active={location === "/messages"}
-          />
-          <NavItem
-            href="/alerts"
-            icon={<Bell className="text-inherit" />}
-            label="Device Alerts"
-            active={location === "/alerts"}
-            badge={unreadAlerts?.length}
-          />
-          <NavItem
-            href="/settings"
-            icon={<Settings className="text-inherit" />}
-            label="Settings"
-            active={location === "/settings"}
-          />
-          <NavItem
-            href="/support"
-            icon={<HelpCircle className="text-inherit" />}
-            label="Help & Support"
-            active={location === "/support"}
-          />
-        </nav>
+  
+  // Navigation content is shared between mobile and desktop
+  const renderNavigation = () => (
+    <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto scrollbar-hide">
+      <NavItem
+        href="/"
+        icon={<Home className="text-inherit" />}
+        label="Dashboard"
+        active={location === "/"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/timeline"
+        icon={<Clock className="text-inherit" />}
+        label="Treatment Timeline"
+        active={location === "/timeline"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/prescriptions"
+        icon={<FileText className="text-inherit" />}
+        label="Prescriptions"
+        active={location === "/prescriptions"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/appointments"
+        icon={<Calendar className="text-inherit" />}
+        label="Appointments"
+        active={location === "/appointments"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/messages"
+        icon={<MessageSquare className="text-inherit" />}
+        label="Messages"
+        active={location === "/messages"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/alerts"
+        icon={<Bell className="text-inherit" />}
+        label="Device Alerts"
+        active={location === "/alerts"}
+        badge={unreadAlerts?.length || 0} // Ensures we have a numeric value or 0
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/settings"
+        icon={<Settings className="text-inherit" />}
+        label="Settings"
+        active={location === "/settings"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/support"
+        icon={<HelpCircle className="text-inherit" />}
+        label="Help & Support"
+        active={location === "/support"}
+        onClick={onNavItemClick}
+      />
+    </nav>
+  );
+  
+  // User profile section is shared between mobile and desktop
+  const renderUserProfile = () => (
+    <div className="flex items-center px-4 py-3 border-b border-neutral-200 dark:border-gray-700">
+      <Avatar className="h-10 w-10">
+        <AvatarImage src={user?.profileImage || undefined} alt={`${user?.firstName} ${user?.lastName}`} />
+        <AvatarFallback>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</AvatarFallback>
+      </Avatar>
+      <div className="ml-3">
+        <p className="text-sm font-medium text-neutral-800 dark:text-gray-200">
+          {user?.firstName} {user?.lastName}
+        </p>
+        <p className="text-xs font-medium text-neutral-500 dark:text-gray-400">
+          {user?.role === "patient" ? "Patient" : "Doctor"}
+        </p>
       </div>
-    </aside>
+    </div>
+  );
+  
+  // Logo section is shared between mobile and desktop
+  const renderLogo = () => (
+    <div className="flex items-center justify-center h-16 px-4 border-b border-neutral-200 dark:border-gray-700 bg-primary dark:bg-primary">
+      <span className="text-lg font-semibold text-white dark:text-white">Saphenus PMS</span>
+    </div>
+  );
+
+  // Fully assembled sidebar content
+  return (
+    <div className="flex flex-col w-64 border-r border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-900 h-full">
+      {renderLogo()}
+      {renderUserProfile()}
+      {renderNavigation()}
+    </div>
+  );
+}
+
+// Mobile-specific sidebar component (used in the mobile menu)
+export function MobileSidebar({ onNavItemClick }: { onNavItemClick: () => void }) {
+  return (
+    <div className="w-full h-full">
+      <BaseSidebar onNavItemClick={onNavItemClick} />
+    </div>
+  );
+}
+
+// Default sidebar export for standard use
+export default function Sidebar() {
+  return (
+    <>
+      {/* Mobile sidebar - hidden by default, shown by the Layout component */}
+      <aside className="md:hidden">
+        <BaseSidebar />
+      </aside>
+      
+      {/* Desktop sidebar - always visible on desktop */}
+      <aside className="hidden md:flex md:flex-shrink-0">
+        <BaseSidebar />
+      </aside>
+    </>
   );
 }
