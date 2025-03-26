@@ -132,17 +132,16 @@ export default function NotificationsDropdown({ isOpen, onClose }: Notifications
                         >
                           Mark as Read
                         </Button>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          className="h-7 text-xs"
-                          onClick={() => {
-                            onClose();
-                            window.location.pathname = "/alerts";
-                          }}
-                        >
-                          View Details
-                        </Button>
+                        <Link href="/alerts">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => onClose()}
+                          >
+                            View Details
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </div>

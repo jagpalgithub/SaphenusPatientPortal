@@ -25,9 +25,9 @@ interface NavItemProps {
 const NavItem = ({ href, icon, label, active, badge }: NavItemProps) => {
   return (
     <Link href={href}>
-      <a
+      <div
         className={cn(
-          "flex items-center px-2 py-2 text-sm font-medium rounded-md",
+          "flex items-center px-2 py-2 text-sm font-medium rounded-md cursor-pointer",
           active
             ? "bg-primary text-white dark:text-white"
             : "text-neutral-700 hover:bg-neutral-100 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -40,7 +40,7 @@ const NavItem = ({ href, icon, label, active, badge }: NavItemProps) => {
             {badge}
           </span>
         )}
-      </a>
+      </div>
     </Link>
   );
 };
