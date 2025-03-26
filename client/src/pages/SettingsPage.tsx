@@ -11,8 +11,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePatient } from "@/hooks/usePatient";
 import { usePatientMetrics } from "@/hooks/usePatientMetrics";
 import { useToast } from "@/hooks/use-toast";
-import { PencilIcon, Save, User, Sliders, Shield, Bell } from "lucide-react";
+import { PencilIcon, Save, User, Sliders, Shield, Bell, Download } from "lucide-react";
 import PatientInfo from "@/components/common/PatientInfo";
+import { userApi } from "@/lib/api";
 
 export default function SettingsPage() {
   const { user, profile, updateUser } = useAuth();
@@ -448,7 +449,26 @@ export default function SettingsPage() {
                       </p>
                       
                       <div className="flex space-x-4">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              await userApi.downloadPatientData();
+                              toast({
+                                title: "Download started",
+                                description: "Your data export has started. Check your downloads folder.",
+                              });
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to download your data. Please try again.",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          <Download className="mr-2 h-4 w-4" />
                           Download My Data
                         </Button>
                         <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
