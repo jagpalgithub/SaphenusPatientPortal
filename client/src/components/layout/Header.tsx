@@ -30,13 +30,15 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
+      // We don't need to navigate as the logout function will do that
+      // Note: The updated logout flow handles transitions smoothly
       await logout();
-      navigate("/login");
+      // Don't do anything after logout - let the auth system handle it
     } catch (error) {
       console.error("Logout failed:", error);
-    } finally {
       setIsLoggingOut(false);
     }
+    // Don't reset isLoggingOut here as the component will unmount
   };
 
   // Close search results when clicking outside
@@ -141,8 +143,17 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
             onClick={handleLogout}
             disabled={isLoggingOut}
           >
-            <LogOut className="h-4 w-4" />
-            <span>Logout</span>
+            {isLoggingOut ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-r-transparent border-primary"></span>
+                <span>Logging out...</span>
+              </>
+            ) : (
+              <>
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </>
+            )}
           </Button>
 
           {/* Mobile Logout Button */}
@@ -153,7 +164,11 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
             onClick={handleLogout}
             disabled={isLoggingOut}
           >
-            <LogOut className="h-5 w-5" />
+            {isLoggingOut ? (
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-r-transparent border-primary"></span>
+            ) : (
+              <LogOut className="h-5 w-5" />
+            )}
           </Button>
 
           {/* Profile dropdown */}

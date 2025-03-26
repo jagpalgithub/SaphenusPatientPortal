@@ -148,7 +148,7 @@ export function useAuth() {
     }
   });
 
-  // Logout mutation
+  // Logout mutation with improved transition
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: () => {
@@ -159,11 +159,19 @@ export function useAuth() {
       queryClient.setQueryData(['/api/auth/user'], null);
       queryClient.setQueryData(['/api/users/profile'], null);
       
-      // Update global state
-      updateAuthState({ isAuthenticated: false, user: null, profile: null });
+      // Update global state first to ensure smooth transition
+      updateAuthState({ 
+        isAuthenticated: false, 
+        user: null, 
+        profile: null,
+        isLoading: false
+      });
       
-      // Force instant reload to login page
-      window.location.replace('/login');
+      // Use history API to navigate to login page without refresh
+      window.history.pushState({}, '', '/login');
+      
+      // Dispatch a popstate event to trigger the router update
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   });
 
