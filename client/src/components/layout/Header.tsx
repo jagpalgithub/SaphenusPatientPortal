@@ -19,7 +19,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   
-  const hasUnreadAlerts = unreadAlerts && unreadAlerts.length > 0;
+  const hasUnreadAlerts = Array.isArray(unreadAlerts) && unreadAlerts.length > 0;
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -117,8 +117,8 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
               >
                 <span className="sr-only">Open user menu</span>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.profileImage} alt={`${user?.firstName} ${user?.lastName}`} />
-                  <AvatarFallback>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={user?.profileImage === null ? "" : (user?.profileImage || "")} alt={`${user?.firstName || ""} ${user?.lastName || ""}`} />
+                  <AvatarFallback>{(user?.firstName || "").charAt(0)}{(user?.lastName || "").charAt(0)}</AvatarFallback>
                 </Avatar>
               </Button>
             </div>

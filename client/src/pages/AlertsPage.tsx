@@ -177,7 +177,7 @@ export default function AlertsPage() {
             </div>
           ) : (
             <div className="space-y-4 mt-4">
-              {filteredAlerts.map((alert) => (
+              {filteredAlerts.map((alert: DeviceAlert) => (
                 <Card key={alert.id} className={`border-l-4 ${alert.isRead ? 'border-l-neutral-300' : 'border-l-accent'}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start">
@@ -217,7 +217,7 @@ export default function AlertsPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => handleDismissAlert(alert.id)}
-                              disabled={alert.isRead}
+                              disabled={alert.isRead ? true : false}
                             >
                               {alert.isRead ? (
                                 <span className="flex items-center">
