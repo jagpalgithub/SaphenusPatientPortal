@@ -56,7 +56,7 @@ export function useAuth() {
     }
   };
 
-  // Try to get user from localStorage first
+  // Try to get user from localStorage first with optimized loading
   useEffect(() => {
     const localUser = checkLocalAuth();
     if (localUser) {
@@ -78,29 +78,80 @@ export function useAuth() {
       
       console.log("Normalized user object:", normalizedUser);
       
+      // Immediately update auth state for faster UI rendering
       updateAuthState({ 
         user: normalizedUser,
         isAuthenticated: true,
         isLoading: false 
       });
       
-      // Also fetch profile data from the backend
-      // This ensures we get all the data associated with the user
-      queryClient.fetchQuery({ 
-        queryKey: ['/api/users/profile']
-      });
+      // Check if this is a fast login (from our optimized login flow)
+      const isFastLogin = Boolean(localUser.fastLogin);
       
-      // Fetch other essential data needed for the dashboard
+      // For patient role, prioritize data loading based on what's visible first
       if (normalizedUser.role === 'patient') {
         const patientId = normalizedUser.id || 1;
-        queryClient.fetchQuery({ queryKey: [`/api/health-metrics/patient/${patientId}`] });
-        queryClient.fetchQuery({ queryKey: [`/api/appointments/patient/${patientId}`] });
-        queryClient.fetchQuery({ queryKey: [`/api/prescriptions/patient/${patientId}`] });
-        queryClient.fetchQuery({ queryKey: [`/api/device-alerts/patient/${patientId}`] });
-        queryClient.fetchQuery({ queryKey: [`/api/updates/patient/${patientId}`] });
-        queryClient.fetchQuery({ queryKey: [`/api/support-requests/patient/${patientId}`] });
-        queryClient.fetchQuery({ queryKey: [`/api/messages/user/${patientId}`] });
-        queryClient.fetchQuery({ queryKey: ['/api/doctors'] });
+        
+        // First batch - highest priority (immediately visible on dashboard)
+        // Use lower priority promises for these, they'll be fetched in parallel
+        Promise.all([
+          // Latest metrics are needed for the dashboard cards
+          queryClient.prefetchQuery({ 
+            queryKey: [`/api/health-metrics/patient/${patientId}/latest`] 
+          }),
+          // Active prescriptions for the sidebar count
+          queryClient.prefetchQuery({ 
+            queryKey: [`/api/prescriptions/patient/${patientId}/active`] 
+          }),
+          // Unread alerts for the notification badge
+          queryClient.prefetchQuery({ 
+            queryKey: [`/api/device-alerts/patient/${patientId}/unread`] 
+          })
+        ]);
+        
+        // Second batch - medium priority (visible but can load a bit later)
+        setTimeout(() => {
+          Promise.all([
+            queryClient.prefetchQuery({ 
+              queryKey: [`/api/health-metrics/patient/${patientId}`] 
+            }),
+            queryClient.prefetchQuery({ 
+              queryKey: [`/api/appointments/patient/${patientId}`] 
+            }),
+            queryClient.prefetchQuery({ 
+              queryKey: [`/api/updates/patient/${patientId}`] 
+            })
+          ]);
+        }, 100);
+        
+        // Third batch - lower priority (not immediately visible)
+        setTimeout(() => {
+          Promise.all([
+            queryClient.prefetchQuery({ 
+              queryKey: [`/api/prescriptions/patient/${patientId}`] 
+            }),
+            queryClient.prefetchQuery({ 
+              queryKey: [`/api/device-alerts/patient/${patientId}`] 
+            }),
+            queryClient.prefetchQuery({ 
+              queryKey: [`/api/messages/user/${patientId}`] 
+            }),
+            queryClient.prefetchQuery({ 
+              queryKey: ['/api/doctors'] 
+            }),
+            queryClient.prefetchQuery({ 
+              queryKey: ['/api/users/profile'] 
+            }),
+            queryClient.prefetchQuery({ 
+              queryKey: [`/api/support-requests/patient/${patientId}`] 
+            })
+          ]);
+        }, 300);
+      } else {
+        // For non-patient roles, fetch profile first
+        queryClient.prefetchQuery({ 
+          queryKey: ['/api/users/profile'] 
+        });
       }
     }
   }, [queryClient]);

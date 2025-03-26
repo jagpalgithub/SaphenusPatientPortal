@@ -22,11 +22,41 @@ import { Link } from "wouter";
 
 export default function Dashboard() {
   const { user, profile } = useAuth();
-  const { metrics, latestMetrics, isLoading: isLoadingMetrics } = usePatientMetrics();
-  const { updates, isLoading: isLoadingUpdates } = useUpdates();
-  const { appointments, createAppointment, updateAppointment, deleteAppointment, isLoading: isLoadingAppointments } = useAppointments();
-  const { prescriptions, isLoading: isLoadingPrescriptions } = usePrescriptions();
-  const { alerts, dismissAlert, resolveAlert, isLoading: isLoadingAlerts } = useAlerts();
+  // Use a flag to prevent immediate data loading that might slow down initial render
+  const [dataLoadingPhase, setDataLoadingPhase] = useState<number>(0);
+  
+  // Only load essential data for the initial view
+  const { latestMetrics, isLoading: isLoadingLatestMetrics } = usePatientMetrics({ 
+    onlyLatest: true, // This should be implemented in the hook for optimization
+    enabled: true // Always fetch latest metrics on first render
+  });
+  
+  // Lazily load the rest in phases
+  useEffect(() => {
+    // Start phase 1 loading after initial render
+    const phase1Timer = setTimeout(() => setDataLoadingPhase(1), 100);
+    // Start phase 2 loading after another delay
+    const phase2Timer = setTimeout(() => setDataLoadingPhase(2), 400);
+    
+    return () => {
+      clearTimeout(phase1Timer);
+      clearTimeout(phase2Timer);
+    };
+  }, []);
+  
+  // Phase 1: Load data needed for visible components
+  const { metrics, isLoading: isLoadingMetrics } = usePatientMetrics({ 
+    onlyLatest: false,
+    enabled: dataLoadingPhase >= 1
+  });
+  const { updates, isLoading: isLoadingUpdates } = useUpdates({ enabled: dataLoadingPhase >= 1 });
+  const { appointments, createAppointment, updateAppointment, deleteAppointment, isLoading: isLoadingAppointments } = 
+    useAppointments({ enabled: dataLoadingPhase >= 1 });
+  
+  // Phase 2: Load data for components that might be below the fold
+  const { prescriptions, isLoading: isLoadingPrescriptions } = usePrescriptions({ enabled: dataLoadingPhase >= 2 });
+  const { alerts, dismissAlert, resolveAlert, isLoading: isLoadingAlerts } = useAlerts({ enabled: dataLoadingPhase >= 1 });
+  
   const { toast } = useToast();
   const [dismissingAlerts, setDismissingAlerts] = useState<{[key: number]: boolean}>({});
 
