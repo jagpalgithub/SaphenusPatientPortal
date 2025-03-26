@@ -45,7 +45,7 @@ export default function VirtualAssistant() {
       let responseContent = "";
       const userMessageLower = message.toLowerCase();
       
-      // Handle different user query types
+      // Handle different user query types - Expanded with more use cases
       if (userMessageLower.includes("discomfort") || userMessageLower.includes("pain")) {
         responseContent = `I'm sorry to hear that. Discomfort could be caused by several factors:
           • Improper fitting of your prosthesis
@@ -53,7 +53,65 @@ export default function VirtualAssistant() {
           • Skin irritation at contact points
           
           Would you like me to schedule an urgent appointment with Dr. Müller, or would you prefer to speak with a support specialist now?`;
-      } else if (userMessageLower.includes("appointment")) {
+      } 
+      // USE CASE 1: Calibration Questions
+      else if (userMessageLower.includes("calibration") || 
+          (userMessageLower.includes("adjust") && userMessageLower.includes("suralis"))) {
+        responseContent = `Your Suralis system requires regular calibration to maintain optimal performance:
+          • Standard calibration: Every 3 months
+          • Fine-tuning: When sensitivity feels off
+          • Full recalibration: After any physical therapy changes
+          
+          Your last calibration was on February 15, 2025. Would you like me to schedule your next calibration appointment?`;
+      }
+      // USE CASE 2: Phantom Pain Management
+      else if ((userMessageLower.includes("phantom") && userMessageLower.includes("pain")) || 
+          userMessageLower.includes("sensation")) {
+        responseContent = `Phantom pain is common with prosthetic users. Your Suralis system is designed to help reduce these sensations by:
+          • Redirecting nerve signals through targeted feedback
+          • Providing sensory substitution in the affected area
+          • Gradually retraining your neural pathways
+          
+          Your current phantom pain score is 4 (down from 7 last month). Would you like tips for managing phantom pain or should I connect you with Dr. Müller to discuss medication options?`;
+      }
+      // USE CASE 3: Battery and Charging Questions
+      else if (userMessageLower.includes("battery") || userMessageLower.includes("charge") || 
+          userMessageLower.includes("power")) {
+        responseContent = `Your Suralis system battery information:
+          • Current charge: 87%
+          • Estimated runtime: 4 days
+          • Charging time: 2 hours for full charge
+          
+          Best practices:
+          • Charge when below 20% for optimal battery life
+          • Use only the approved Saphenus charging equipment
+          • Store the backup battery in a cool, dry place
+          
+          Do you need help with charging issues or would you like to order a replacement battery?`;
+      }
+      // USE CASE 4: Activity Recommendations
+      else if (userMessageLower.includes("exercise") || userMessageLower.includes("activity") || 
+          userMessageLower.includes("workout")) {
+        responseContent = `Based on your health metrics, here are recommended activities:
+          • Low-impact walking: 30 minutes daily
+          • Specialized prosthetic exercises: 15 minutes, 3x weekly
+          • Balance training: 10 minutes daily
+          
+          Your mobility score has improved by 12% following these recommendations. Would you like me to show you detailed exercise instructions or connect you with our physical therapist?`;
+      }
+      // USE CASE 5: Skin Care and Prosthetic Fitting
+      else if (userMessageLower.includes("skin") || userMessageLower.includes("irritation") || 
+          (userMessageLower.includes("prosthetic") && userMessageLower.includes("fit"))) {
+        responseContent = `Proper skin care is essential for prosthetic users. Here are recommendations:
+          • Clean the socket area daily with mild, fragrance-free soap
+          • Apply the prescribed moisturizer to prevent dryness
+          • Inspect skin daily for any red or irritated areas
+          • Use the silicone liner provided by Saphenus
+          
+          If you're experiencing persistent skin issues, you should schedule an appointment with Dr. Müller. Would you like me to do that for you?`;
+      }
+      // Original use cases
+      else if (userMessageLower.includes("appointment")) {
         responseContent = "I can help you schedule an appointment. When would you like to visit your doctor? You can also go directly to the Appointments section from the sidebar to schedule one yourself.";
       } else if (userMessageLower.includes("medication") || userMessageLower.includes("prescription")) {
         responseContent = "I can check your current prescriptions. You currently have 2 active prescriptions: Gabapentin for pain management and Physical Therapy. You can view and manage your prescriptions in the Prescriptions section.";
@@ -124,7 +182,6 @@ export default function VirtualAssistant() {
                 {msg.sender === "user" && (
                   <div className="flex-shrink-0">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={user?.profileImage} alt={user?.firstName || 'User'} />
                       <AvatarFallback>{user?.firstName?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                   </div>
@@ -160,6 +217,131 @@ export default function VirtualAssistant() {
                   </>
                 )}
                 
+                {/* Calibration responses */}
+                {messages[messages.length - 1].content.includes("Standard calibration") && (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setMessage("Yes, please schedule my next calibration appointment");
+                        handleSendMessage();
+                      }}
+                    >
+                      Schedule Calibration
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMessage("Why is regular calibration important?");
+                        handleSendMessage();
+                      }}
+                    >
+                      Learn More
+                    </Button>
+                  </>
+                )}
+                
+                {/* Phantom pain responses */}
+                {messages[messages.length - 1].content.includes("Phantom pain is common") && (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setMessage("I'd like tips for managing phantom pain");
+                        handleSendMessage();
+                      }}
+                    >
+                      Pain Management Tips
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMessage("Connect me with Dr. Müller about medication options");
+                        handleSendMessage();
+                      }}
+                    >
+                      Discuss Medication
+                    </Button>
+                  </>
+                )}
+                
+                {/* Battery info responses */}
+                {messages[messages.length - 1].content.includes("battery information") && (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setMessage("I need help with charging issues");
+                        handleSendMessage();
+                      }}
+                    >
+                      Charging Help
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMessage("I'd like to order a replacement battery");
+                        handleSendMessage();
+                      }}
+                    >
+                      Order Battery
+                    </Button>
+                  </>
+                )}
+                
+                {/* Exercise responses */}
+                {messages[messages.length - 1].content.includes("recommended activities") && (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setMessage("Show me detailed exercise instructions");
+                        handleSendMessage();
+                      }}
+                    >
+                      Exercise Instructions
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMessage("Connect me with a physical therapist");
+                        handleSendMessage();
+                      }}
+                    >
+                      Contact Therapist
+                    </Button>
+                  </>
+                )}
+                
+                {/* Skin care responses */}
+                {messages[messages.length - 1].content.includes("Proper skin care") && (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setMessage("Yes, schedule an appointment with Dr. Müller");
+                        handleSendMessage();
+                      }}
+                    >
+                      Schedule Appointment
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMessage("What moisturizer should I use?");
+                        handleSendMessage();
+                      }}
+                    >
+                      Ask About Products
+                    </Button>
+                  </>
+                )}
+                
                 {/* Suralis/Device responses */}
                 {messages[messages.length - 1].content.includes("Suralis sensory feedback system") && (
                   <>
@@ -185,8 +367,13 @@ export default function VirtualAssistant() {
                   </>
                 )}
                 
-                {/* General quick responses always available */}
+                {/* General quick responses always available if no specific context detected */}
                 {!messages[messages.length - 1].content.includes("discomfort") && 
+                 !messages[messages.length - 1].content.includes("Standard calibration") &&
+                 !messages[messages.length - 1].content.includes("Phantom pain is common") &&
+                 !messages[messages.length - 1].content.includes("battery information") &&
+                 !messages[messages.length - 1].content.includes("recommended activities") &&
+                 !messages[messages.length - 1].content.includes("Proper skin care") &&
                  !messages[messages.length - 1].content.includes("Suralis sensory feedback system") && (
                   <>
                     <Button
