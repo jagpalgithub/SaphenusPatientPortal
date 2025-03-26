@@ -62,72 +62,81 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
-    if (isLoggingIn) return; // Prevent double-clicks
+  // Fixed login function that works with a single click
+  const onSubmit = (values: LoginFormValues) => {
+    // If already logging in, prevent second execution
+    if (isLoggingIn) return;
     
+    // Set login state immediately to prevent multiple clicks
     setIsLoggingIn(true);
-    try {
-      console.log("Logging in with credentials:", { username: values.username }); 
+    
+    // Log what we're doing
+    console.log("Logging in with credentials:", { username: values.username });
+    
+    // Special case for Anna login (most common)
+    if (values.username === "Anna" && values.password === "loginpassword2$") {
+      // Set up optimized auth data
+      const authData = {
+        isAuthenticated: true, 
+        userId: 1,
+        username: "Anna",
+        firstName: "Anna",
+        lastName: "Schmidt",
+        role: "patient",
+        fastLogin: true
+      };
       
-      // Optimize login for Anna - most efficient path
-      if (values.username === "Anna" && values.password === "loginpassword2$") {
-        // Pre-load critical patient data
-        // Set optimized auth data with minimal fields
-        const authData = {
-          isAuthenticated: true,
-          userId: 1,
-          username: "Anna",
-          firstName: "Anna",
-          lastName: "Schmidt",
-          role: "patient",
-          // Add a flag to indicate this is a fast login
-          fastLogin: true
-        };
-        
-        // Store in localStorage
-        localStorage.setItem('saphenus_auth', JSON.stringify(authData));
-        
-        // Prefetch only essential data for initial dashboard render
-        fetch('/api/health-metrics/patient/1/latest', {
-          headers: { 'X-User-ID': '1', 'X-User-Role': 'patient' }
+      // Store in localStorage
+      localStorage.setItem('saphenus_auth', JSON.stringify(authData));
+      
+      // Preload essential metrics data in background
+      fetch('/api/health-metrics/patient/1/latest', {
+        headers: { 'X-User-ID': '1', 'X-User-Role': 'patient' }
+      }).catch(() => {
+        // Silent catch - we don't want to block login if this fails
+      });
+      
+      console.log("Login successful, redirecting to dashboard...");
+      
+      // Show welcome message
+      toast({
+        title: "Welcome back, Anna!",
+        description: "You've successfully logged in to your patient portal."
+      });
+      
+      // Redirect immediately using location for guaranteed navigation
+      window.location.href = '/';
+      return;
+    }
+    
+    // For other users (handled separately)
+    handleNonDefaultLogin(values.username, values.password)
+      .catch(error => {
+        console.error("Login error:", error);
+        toast({
+          title: "Login failed",
+          description: "Invalid username or password. Please try again.",
+          variant: "destructive"
         });
-        
-        // Show a success toast that won't block rendering
-        setTimeout(() => {
-          toast({
-            title: "Welcome back, Anna!",
-            description: "You've successfully logged in to your patient portal.",
-          });
-        }, 500);
-        
-        console.log("Login successful, redirecting to dashboard...");
-        
-        // Use History API for faster navigation without page reload
-        window.history.pushState({}, '', '/');
-        window.dispatchEvent(new PopStateEvent('popstate'));
-        return;
-      }
-      
-      // For non-Anna logins, use the optimized flow too
+        setIsLoggingIn(false);
+      });
+  };
+  
+  // Separate function to handle non-Anna logins
+  const handleNonDefaultLogin = async (username: string, password: string) => {
+    try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username: values.username,
-          password: values.password
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
         credentials: 'include'
       });
       
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
+      if (!response.ok) throw new Error('Login failed');
       
       const userData = await response.json();
       
-      // Store user data with optimized fields
+      // Store in localStorage
       localStorage.setItem('saphenus_auth', JSON.stringify({
         isAuthenticated: true,
         userId: userData.id,
@@ -138,34 +147,16 @@ export default function LoginPage() {
         fastLogin: true
       }));
       
-      // Prefetch essential data for this user
-      if (userData.role === 'patient') {
-        fetch(`/api/health-metrics/patient/${userData.id}/latest`, {
-          headers: { 'X-User-ID': userData.id.toString(), 'X-User-Role': userData.role }
-        });
-      }
-      
-      // Delayed toast to not block rendering
-      setTimeout(() => {
-        toast({
-          title: `Welcome back, ${userData.firstName}!`,
-          description: "You've successfully logged in to your patient portal.",
-        });
-      }, 500);
-      
-      console.log("Login successful, redirecting to dashboard...");
-      
-      // Use History API for faster navigation
-      window.history.pushState({}, '', '/');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    } catch (error) {
-      console.error("Login error:", error);
+      // Show welcome message
       toast({
-        title: "Login failed",
-        description: "Invalid username or password. Please try again.",
-        variant: "destructive",
+        title: `Welcome back, ${userData.firstName}!`,
+        description: "You've successfully logged in to your patient portal."
       });
-      setIsLoggingIn(false);
+      
+      // Redirect immediately using location for guaranteed navigation
+      window.location.href = '/';
+    } catch (error) {
+      throw error; // Re-throw to be handled by the caller
     }
   };
 
