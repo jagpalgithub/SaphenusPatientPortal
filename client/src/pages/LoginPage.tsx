@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import saphenusLogo from "@/assets/saphenus-logo.svg";
 
 // Define schema for login form validation
 const loginSchema = z.object({
@@ -66,7 +67,11 @@ export default function LoginPage() {
       <div className="w-full max-w-lg space-y-8">
         {/* Logo and branding */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-indigo-800">Saphenus Medical Technology</h1>
+          <img 
+            src={saphenusLogo} 
+            alt="Saphenus Medical Technology" 
+            className="mx-auto mb-4 h-14" 
+          />
           <p className="mt-2 text-lg text-indigo-600">Restoring Sensory Experience</p>
         </div>
 
