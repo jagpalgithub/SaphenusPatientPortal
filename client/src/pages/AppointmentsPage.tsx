@@ -45,6 +45,9 @@ export default function AppointmentsPage() {
   const createForm = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
+      doctorId: "",
+      dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+      duration: "30",
       purpose: "",
       notes: "",
     },
@@ -192,6 +195,9 @@ export default function AppointmentsPage() {
           <Button
             onClick={() => {
               createForm.reset({
+                doctorId: "",
+                dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+                duration: "30",
                 purpose: "",
                 notes: "",
               });
@@ -231,7 +237,16 @@ export default function AppointmentsPage() {
                   </p>
                   <div className="mt-6">
                     <Button 
-                      onClick={() => setIsCreateDialogOpen(true)}
+                      onClick={() => {
+                        createForm.reset({
+                          doctorId: "",
+                          dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+                          duration: "30",
+                          purpose: "",
+                          notes: "",
+                        });
+                        setIsCreateDialogOpen(true);
+                      }}
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                     >
                       Schedule New Appointment
