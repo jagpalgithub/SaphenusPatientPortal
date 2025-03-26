@@ -292,11 +292,15 @@ export class MemStorage implements IStorage {
     };
     this.medicalStaff.set(technician.id, technician);
     
+    // Use current date instead of future date (March 2025)
     const currentDate = new Date();
+    // Set the date to a specific date to ensure consistency
+    currentDate.setFullYear(2023);
+    currentDate.setMonth(8); // September 2023
     
     // Add 6 months of health metrics data with realistic trends
     for (let i = 5; i >= 0; i--) {
-      const date = new Date();
+      const date = new Date(currentDate);
       date.setMonth(date.getMonth() - i);
       
       // Mobility score gradually improving (0-100 scale)
