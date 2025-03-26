@@ -17,6 +17,7 @@ import { useAppointments } from "@/hooks/useAppointments";
 import { usePrescriptions } from "@/hooks/usePrescriptions";
 import { useAlerts } from "@/hooks/useAlerts";
 import { format } from "date-fns";
+import { Link } from "wouter";
 
 export default function Dashboard() {
   const { user, profile } = useAuth();
@@ -27,9 +28,9 @@ export default function Dashboard() {
   const { alerts, dismissAlert, resolveAlert, isLoading: isLoadingAlerts } = useAlerts();
 
   const handleNewAppointment = () => {
-    // Redirect to appointments page
+    // This function is kept for the AppointmentList component's prop
     console.log("Create new appointment");
-    window.location.href = "/appointments";
+    // We'll use Link components instead of programmatic navigation
   };
 
   const handleEditAppointment = (id: number) => {
@@ -68,21 +69,23 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-          <Button
-            variant="outline"
-            onClick={handleNewAppointment}
-            className="inline-flex items-center px-3 py-2 border border-neutral-300 shadow-sm text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            <Plus className="-ml-1 mr-2 h-5 w-5 text-neutral-500" />
-            New Appointment
-          </Button>
-          <Button
-            onClick={() => window.location.href = "/support"}
-            className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            <HelpCircle className="-ml-1 mr-2 h-5 w-5" />
-            Ask for Support
-          </Button>
+          <Link href="/appointments">
+            <Button
+              variant="outline"
+              className="inline-flex items-center px-3 py-2 border border-neutral-300 shadow-sm text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              <Plus className="-ml-1 mr-2 h-5 w-5 text-neutral-500" />
+              New Appointment
+            </Button>
+          </Link>
+          <Link href="/support">
+            <Button
+              className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              <HelpCircle className="-ml-1 mr-2 h-5 w-5" />
+              Ask for Support
+            </Button>
+          </Link>
         </div>
       </div>
 
