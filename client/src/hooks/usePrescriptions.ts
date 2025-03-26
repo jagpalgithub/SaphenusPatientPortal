@@ -83,6 +83,32 @@ export function usePrescriptions() {
     return updateMutation.mutateAsync({ id, data });
   };
 
+  // Refill prescription mutation
+  const refillMutation = useMutation({
+    mutationFn: (prescriptionId: number) => 
+      prescriptionsApi.requestRefill(prescriptionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/prescriptions/patient/${profile?.id}`, profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/prescriptions/patient/${profile?.id}/active`, profile?.id] });
+      toast({
+        title: "Refill requested",
+        description: "Your prescription refill request has been submitted",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to request prescription refill",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Request a prescription refill
+  const requestRefill = async (prescriptionId: number) => {
+    return refillMutation.mutateAsync(prescriptionId);
+  };
+
   return {
     prescriptions: allPrescriptions,
     activePrescriptions,
@@ -90,7 +116,9 @@ export function usePrescriptions() {
     error: allError || activeError,
     createPrescription,
     updatePrescription,
+    requestRefill,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
+    isRequestingRefill: refillMutation.isPending,
   };
 }

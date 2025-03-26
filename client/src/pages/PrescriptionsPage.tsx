@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function PrescriptionsPage() {
   const { user } = useAuth();
-  const { prescriptions, isLoading } = usePrescriptions();
+  const { prescriptions, isLoading, requestRefill, isRequestingRefill } = usePrescriptions();
   const [activeTab, setActiveTab] = useState("active");
 
   // Split prescriptions into active and inactive
@@ -48,6 +48,17 @@ export default function PrescriptionsPage() {
   };
 
   const PrescriptionCard = ({ prescription }: { prescription: Prescription & { doctor: { firstName: string; lastName: string } } }) => {
+    // Handle refill request
+    const handleRequestRefill = async () => {
+      if (prescription.id) {
+        try {
+          await requestRefill(prescription.id);
+        } catch (error) {
+          console.error("Error requesting refill:", error);
+        }
+      }
+    };
+    
     return (
       <Card className="mb-4">
         <CardContent className="p-4">
@@ -114,9 +125,24 @@ export default function PrescriptionsPage() {
               
               {prescription.isActive && (
                 <div className="mt-3">
-                  <Button variant="outline" size="sm" className="text-primary">
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Request Refill
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-primary"
+                    onClick={handleRequestRefill}
+                    disabled={isRequestingRefill}
+                  >
+                    {isRequestingRefill ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Request Refill
+                      </>
+                    )}
                   </Button>
                 </div>
               )}

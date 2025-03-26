@@ -359,6 +359,49 @@ const setupPrescriptionRoutes = (app: Express) => {
       res.status(400).json({ message: 'Invalid prescription data', error });
     }
   });
+  
+  // Request prescription refill
+  app.post('/api/prescriptions/:id/refill', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const prescriptionId = parseInt(id);
+      
+      // Get the prescription
+      const prescription = await storage.getPrescription(prescriptionId);
+      if (!prescription) {
+        return res.status(404).json({ message: 'Prescription not found' });
+      }
+      
+      // Check if it's active
+      if (!prescription.isActive) {
+        return res.status(400).json({ message: 'Cannot refill inactive prescription' });
+      }
+      
+      // Handle refill logic - in a real system, this would create a notification for the doctor
+      // For now, we'll just update the prescription with a note about the refill request
+      const updatedPrescription = await storage.updatePrescription(prescriptionId, {
+        notes: prescription.notes 
+          ? `${prescription.notes}\nRefill requested on ${new Date().toISOString().split('T')[0]}`
+          : `Refill requested on ${new Date().toISOString().split('T')[0]}`
+      });
+      
+      // Create an update to record this event
+      await storage.createUpdate({
+        patientId: prescription.patientId,
+        type: 'prescription_refill',
+        content: `Refill requested for ${prescription.medicationName}`,
+        sourceType: 'prescription',
+        sourceId: prescription.id,
+        sourceName: 'Patient Request',
+        timestamp: new Date()
+      });
+      
+      res.json(updatedPrescription);
+    } catch (error) {
+      console.error("Prescription refill error:", error);
+      res.status(500).json({ message: 'Failed to request prescription refill', error });
+    }
+  });
 };
 
 // Device alert routes

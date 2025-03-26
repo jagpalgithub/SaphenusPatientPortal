@@ -153,6 +153,12 @@ export const prescriptionsApi = {
   updatePrescription: async (id: number, data: any) => {
     const response = await apiRequest("PATCH", `/api/prescriptions/${id}`, data);
     return response.json();
+  },
+  
+  requestRefill: async (id: number) => {
+    // This sends a refill request via the API
+    const response = await apiRequest("POST", `/api/prescriptions/${id}/refill`);
+    return response.json();
   }
 };
 
