@@ -15,7 +15,7 @@ export function usePatientMetrics() {
     isLoading: isLoadingMetrics,
     error: metricsError
   } = useQuery({
-    queryKey: ['/api/health-metrics/patient', profile?.id],
+    queryKey: [`/api/health-metrics/patient/${profile?.id}`, profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data) => {
@@ -30,7 +30,7 @@ export function usePatientMetrics() {
     isLoading: isLoadingLatest,
     error: latestError
   } = useQuery({
-    queryKey: ['/api/health-metrics/patient', profile?.id, 'latest'],
+    queryKey: [`/api/health-metrics/patient/${profile?.id}/latest`, profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -40,8 +40,8 @@ export function usePatientMetrics() {
     mutationFn: (metric: any) => 
       metricsApi.createHealthMetric(metric),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/health-metrics/patient', profile?.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/health-metrics/patient', profile?.id, 'latest'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/health-metrics/patient/${profile?.id}`, profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/health-metrics/patient/${profile?.id}/latest`, profile?.id] });
       toast({
         title: "Health metrics recorded",
         description: "Your health metrics have been successfully recorded",
@@ -61,8 +61,8 @@ export function usePatientMetrics() {
     mutationFn: ({ id, data }: { id: number; data: Partial<HealthMetric> }) => 
       metricsApi.updateHealthMetric(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/health-metrics/patient', profile?.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/health-metrics/patient', profile?.id, 'latest'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/health-metrics/patient/${profile?.id}`, profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/health-metrics/patient/${profile?.id}/latest`, profile?.id] });
       toast({
         title: "Health metrics updated",
         description: "Your health metrics have been successfully updated",

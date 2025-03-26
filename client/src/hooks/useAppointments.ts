@@ -15,7 +15,7 @@ export function useAppointments() {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['/api/appointments/patient', profile?.id],
+    queryKey: [`/api/appointments/patient/${profile?.id}`, profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -34,7 +34,7 @@ export function useAppointments() {
     mutationFn: (appointment: InsertAppointment) => 
       appointmentsApi.createAppointment(appointment),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/appointments/patient', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/appointments/patient/${profile?.id}`, profile?.id] });
       toast({
         title: "Appointment scheduled",
         description: "Your appointment has been successfully scheduled",
@@ -54,7 +54,7 @@ export function useAppointments() {
     mutationFn: ({ id, data }: { id: number; data: Partial<Appointment> }) => 
       appointmentsApi.updateAppointment(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/appointments/patient', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/appointments/patient/${profile?.id}`, profile?.id] });
       toast({
         title: "Appointment updated",
         description: "Your appointment has been successfully updated",
@@ -74,7 +74,7 @@ export function useAppointments() {
     mutationFn: (id: number) => 
       appointmentsApi.deleteAppointment(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/appointments/patient', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/appointments/patient/${profile?.id}`, profile?.id] });
       toast({
         title: "Appointment cancelled",
         description: "Your appointment has been successfully cancelled",

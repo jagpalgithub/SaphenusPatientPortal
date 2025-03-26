@@ -15,7 +15,7 @@ export function useUpdates() {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['/api/updates/patient', profile?.id],
+    queryKey: [`/api/updates/patient/${profile?.id}`, profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -25,7 +25,7 @@ export function useUpdates() {
     mutationFn: (update: InsertUpdate) => 
       updatesApi.createUpdate(update),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/updates/patient', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/updates/patient/${profile?.id}`, profile?.id] });
       toast({
         title: "Update created",
         description: "The update has been successfully created",

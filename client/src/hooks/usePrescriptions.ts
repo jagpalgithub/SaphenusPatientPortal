@@ -15,7 +15,7 @@ export function usePrescriptions() {
     isLoading: isLoadingAll,
     error: allError
   } = useQuery({
-    queryKey: ['/api/prescriptions/patient', profile?.id],
+    queryKey: [`/api/prescriptions/patient/${profile?.id}`, profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -26,7 +26,7 @@ export function usePrescriptions() {
     isLoading: isLoadingActive,
     error: activeError
   } = useQuery({
-    queryKey: ['/api/prescriptions/patient', profile?.id, 'active'],
+    queryKey: [`/api/prescriptions/patient/${profile?.id}/active`, profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
