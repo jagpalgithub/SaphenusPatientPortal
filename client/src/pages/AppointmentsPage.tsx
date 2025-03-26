@@ -93,12 +93,13 @@ export default function AppointmentsPage() {
       const newAppointment = {
         patientId: profile.id,
         doctorId: parseInt(values.doctorId),
-        dateTime: values.dateTime, // Keep as Date object
+        dateTime: values.dateTime.toISOString(), // Convert Date to ISO string
         duration: parseInt(values.duration),
         purpose: values.purpose,
         notes: values.notes || null,
-        status: "scheduled"
-        // Remove fee and feePaid as they're optional and may be causing issues
+        status: "scheduled",
+        fee: 0,          // Add required fields with default values
+        feePaid: false   // Add required fields with default values
       };
       
       console.log("Creating appointment with data:", newAppointment);
@@ -143,32 +144,44 @@ export default function AppointmentsPage() {
     
     try {
       const updatedAppointment = {
-        ...currentAppointment,
         doctorId: parseInt(values.doctorId),
         dateTime: values.dateTime instanceof Date ? values.dateTime.toISOString() : new Date().toISOString(),
         duration: parseInt(values.duration),
         purpose: values.purpose,
-        notes: values.notes || null,
+        notes: values.notes || null
       };
       
       console.log("Updating appointment with data:", updatedAppointment);
       
-      // Convert the date format correctly before sending to API
-      await updateAppointment(currentAppointment.id, {
-        ...updatedAppointment,
-        dateTime: new Date(updatedAppointment.dateTime)
-      });
+      await updateAppointment(currentAppointment.id, updatedAppointment);
       setIsEditDialogOpen(false);
       editForm.reset();
       toast({
         title: "Appointment updated",
         description: "Your appointment has been updated successfully",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Appointment update error:", error);
+      
+      // Get more details about the error
+      let errorMessage = "Failed to update appointment. Please check all fields and try again.";
+      if (error.response) {
+        try {
+          const errorData = await error.response.json();
+          console.error("Error details:", errorData);
+          if (errorData.error && errorData.error.issues) {
+            errorMessage = errorData.error.issues.map((i: any) => i.message).join(", ");
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          console.error("Error parsing error response:", e);
+        }
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to update appointment. Please check all fields and try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
