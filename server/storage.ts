@@ -169,19 +169,318 @@ export class MemStorage implements IStorage {
     };
     this.patients.set(adminPatient.id, adminPatient);
     
-    // Add basic health metrics for admin user
-    const adminMetric: HealthMetric = {
-      id: this.currentIds.healthMetric++,
+    // Use current date instead of future date for admin user
+    const adminCurrentDate = new Date();
+    // Set the date to a specific date to ensure consistency
+    adminCurrentDate.setFullYear(2023);
+    adminCurrentDate.setMonth(8); // September 2023
+    
+    // Add 6 months of health metrics data for admin user with realistic trends
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(adminCurrentDate);
+      date.setMonth(date.getMonth() - i);
+      
+      // Mobility score gradually improving (0-100 scale) - started lower than Anna due to complications
+      const mobilityScore = Math.min(92, 60 + (i * 6));
+      
+      // Phantom pain score gradually decreasing (0-10 scale, 0 is no pain)
+      const phantomPainScore = Math.max(1, 9 - i * 1.5);
+      
+      // Sensor sensitivity gradually improving (0-100 scale)
+      const sensorSensitivity = Math.min(95, 65 + (i * 6));
+      
+      // Step count increasing as patient becomes more mobile
+      const stepCount = 2000 + (i * 900);
+      
+      // Gait stability improving (0-100 scale)
+      const gaitStability = Math.min(90, 60 + (i * 6));
+      
+      let notes = null;
+      
+      // Add specific notes for certain months
+      if (i === 0) {
+        notes = "Final assessment shows excellent progress. Patient now able to navigate stairs with confidence. Suralis system responsiveness at optimal levels.";
+      } else if (i === 1) {
+        notes = "Firmware update applied to Suralis system. Sensitivity improved by 15%. Patient reports better terrain detection.";
+      } else if (i === 2) {
+        notes = "Minor adjustment to prosthetic alignment. Gait symmetry improved by 8%.";
+      } else if (i === 4) {
+        notes = "Patient reported discomfort at electrode contact points. Padding modified and issue resolved.";
+      } else if (i === 5) {
+        notes = "Initial assessment. Patient struggling with weight distribution and balance. Suralis sensitivity set to 65% to avoid overwhelming sensory input.";
+      }
+      
+      const metric: HealthMetric = {
+        id: this.currentIds.healthMetric++,
+        patientId: adminPatient.id,
+        recordDate: date,
+        mobilityScore,
+        phantomPainScore,
+        sensorSensitivity,
+        stepCount,
+        gaitStability,
+        notes
+      };
+      this.healthMetrics.set(metric.id, metric);
+    }
+    
+    // Add past, current, and future appointments for admin user
+    const adminThreeMonthsAgo = new Date(adminCurrentDate);
+    adminThreeMonthsAgo.setMonth(adminCurrentDate.getMonth() - 3);
+    
+    // Initial surgery follow-up
+    const adminPastAppointment1: Appointment = {
+      id: this.currentIds.appointment++,
       patientId: adminPatient.id,
-      recordDate: new Date(),
-      mobilityScore: 85,
-      phantomPainScore: 2,
-      sensorSensitivity: 90,
-      stepCount: 6500,
-      gaitStability: 88,
-      notes: "Initial assessment for admin user"
+      doctorId: 1, // Will be assigned to Dr. Müller
+      dateTime: new Date(adminThreeMonthsAgo.getFullYear(), adminThreeMonthsAgo.getMonth(), 10, 9, 0),
+      duration: 60,
+      purpose: "Post-Amputation Follow-up & Suralis System Introduction",
+      status: "completed",
+      notes: "Patient recovery is proceeding well. Initial evaluation for Suralis system conducted. Patient is a good candidate for sensory feedback technology.",
+      fee: 250.00,
+      feePaid: true
     };
-    this.healthMetrics.set(adminMetric.id, adminMetric);
+    this.appointments.set(adminPastAppointment1.id, adminPastAppointment1);
+    
+    // Fitting session
+    const adminTwoMonthsAgo = new Date(adminCurrentDate);
+    adminTwoMonthsAgo.setMonth(adminCurrentDate.getMonth() - 2);
+    
+    const adminPastAppointment2: Appointment = {
+      id: this.currentIds.appointment++,
+      patientId: adminPatient.id,
+      doctorId: 1, // Will be assigned to Dr. Müller
+      dateTime: new Date(adminTwoMonthsAgo.getFullYear(), adminTwoMonthsAgo.getMonth(), 5, 14, 30),
+      duration: 90,
+      purpose: "Suralis System Fitting & Initial Calibration",
+      status: "completed",
+      notes: "First Suralis system fitting completed. Basic calibration performed. Patient reported immediate sensation in phantom limb areas. Initial gait training with sensory feedback initiated.",
+      fee: 350.00,
+      feePaid: true
+    };
+    this.appointments.set(adminPastAppointment2.id, adminPastAppointment2);
+    
+    // Technical adjustment
+    const adminOneMonthAgo = new Date(adminCurrentDate);
+    adminOneMonthAgo.setMonth(adminCurrentDate.getMonth() - 1);
+    
+    const adminPastAppointment3: Appointment = {
+      id: this.currentIds.appointment++,
+      patientId: adminPatient.id,
+      doctorId: 3, // Technician
+      dateTime: new Date(adminOneMonthAgo.getFullYear(), adminOneMonthAgo.getMonth(), 15, 11, 0),
+      duration: 45,
+      purpose: "Suralis System Fine-tuning",
+      status: "completed",
+      notes: "Electrode positioning adjusted for better coverage of sensory map. Firmware updated to version 3.2.1. Sensitivity increased by 15%.",
+      fee: 150.00,
+      feePaid: true
+    };
+    this.appointments.set(adminPastAppointment3.id, adminPastAppointment3);
+    
+    // Upcoming check-up
+    const adminUpcomingAppointment: Appointment = {
+      id: this.currentIds.appointment++,
+      patientId: adminPatient.id,
+      doctorId: 1, // Dr. Müller
+      dateTime: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() + 7, 13, 30),
+      duration: 45,
+      purpose: "Quarterly Progress Assessment",
+      status: "scheduled",
+      notes: "Scheduled review of all metrics. Will assess progress and make adjustments to therapy regimen as needed.",
+      fee: 180.00,
+      feePaid: false
+    };
+    this.appointments.set(adminUpcomingAppointment.id, adminUpcomingAppointment);
+    
+    // Add prescriptions for admin patient
+    const adminPrescription1: Prescription = {
+      id: this.currentIds.prescription++,
+      patientId: adminPatient.id,
+      doctorId: 1, // Dr. Müller
+      medicationName: "Pregabalin",
+      dosage: "75mg",
+      frequency: "1 capsule twice daily",
+      startDate: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth() - 2, 5).toISOString().split('T')[0],
+      endDate: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth() + 1, 5).toISOString().split('T')[0],
+      isActive: true,
+      purpose: "For neuropathic pain management in residual limb",
+      refillsRemaining: 1,
+      notes: "Take with food to reduce potential nausea",
+      type: "medication"
+    };
+    this.prescriptions.set(adminPrescription1.id, adminPrescription1);
+    
+    const adminPrescription2: Prescription = {
+      id: this.currentIds.prescription++,
+      patientId: adminPatient.id,
+      doctorId: 1, // Dr. Müller
+      medicationName: "Advanced Gait Training",
+      dosage: "60 minutes",
+      frequency: "2 sessions per week",
+      startDate: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth() - 3, 15).toISOString().split('T')[0],
+      endDate: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth() + 3, 15).toISOString().split('T')[0],
+      isActive: true,
+      purpose: "For improving gait pattern with Suralis-enabled prosthetic",
+      refillsRemaining: 16,
+      notes: "Focus on uneven terrain and stair navigation",
+      type: "physical_therapy"
+    };
+    this.prescriptions.set(adminPrescription2.id, adminPrescription2);
+    
+    // Add device alerts for admin
+    const adminAlert1: DeviceAlert = {
+      id: this.currentIds.deviceAlert++,
+      patientId: adminPatient.id,
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 5),
+      alertType: "firmware",
+      message: "A new firmware update (v3.2.4) is available for your Suralis system. This update improves terrain sensing accuracy.",
+      severity: "low",
+      isRead: false,
+      isResolved: false,
+      resolutionNotes: null
+    };
+    this.deviceAlerts.set(adminAlert1.id, adminAlert1);
+    
+    const adminAlert2: DeviceAlert = {
+      id: this.currentIds.deviceAlert++,
+      patientId: adminPatient.id,
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 1),
+      alertType: "sensor",
+      message: "Medial electrode contact quality has degraded to 78%. Consider scheduling a maintenance appointment.",
+      severity: "medium",
+      isRead: false,
+      isResolved: false,
+      resolutionNotes: null
+    };
+    this.deviceAlerts.set(adminAlert2.id, adminAlert2);
+    
+    // Add activity updates for admin
+    const adminUpdate1: Update = {
+      id: this.currentIds.update++,
+      patientId: adminPatient.id,
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 7, 15, 30),
+      type: "doctor_feedback",
+      content: "I've reviewed your latest metrics. The increase in gait stability scores is impressive. Keep up with your home exercises!",
+      sourceId: 1, // Dr. Müller
+      sourceType: "medical_staff",
+      sourceName: "Dr. Andreas Müller",
+      sourceImage: null
+    };
+    this.updates.set(adminUpdate1.id, adminUpdate1);
+    
+    const adminUpdate2: Update = {
+      id: this.currentIds.update++,
+      patientId: adminPatient.id,
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 3, 9, 45),
+      type: "achievement",
+      content: "Congratulations! Your mobility assessment shows a 25% improvement since starting with the Suralis system.",
+      sourceId: null,
+      sourceType: "system",
+      sourceName: "Mobility Milestone",
+      sourceImage: null
+    };
+    this.updates.set(adminUpdate2.id, adminUpdate2);
+    
+    const adminUpdate3: Update = {
+      id: this.currentIds.update++,
+      patientId: adminPatient.id,
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 14, 11, 20),
+      type: "system_calibration",
+      content: "Your Suralis system has been recalibrated. Pressure sensitivity has been increased by 10% as requested.",
+      sourceId: null,
+      sourceType: "system",
+      sourceName: "System Calibration Complete",
+      sourceImage: null
+    };
+    this.updates.set(adminUpdate3.id, adminUpdate3);
+    
+    // Add messages between admin and Dr. Müller
+    const adminDoctorMessage1: Message = {
+      id: this.currentIds.message++,
+      senderId: adminUser.id,
+      receiverId: 3, // Dr. Müller (doctorUser.id)
+      content: "Dr. Müller, I've noticed some discomfort where the electrodes contact my residual limb after walking for extended periods. Is this normal or should I schedule an earlier appointment?",
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 4, 18, 45),
+      isRead: true
+    };
+    this.messages.set(adminDoctorMessage1.id, adminDoctorMessage1);
+    
+    const adminDoctorMessage2: Message = {
+      id: this.currentIds.message++,
+      senderId: 3, // Dr. Müller
+      receiverId: adminUser.id,
+      content: "Some mild discomfort at contact points is normal as you increase your activity. Try slightly loosening the socket and applying the electrode gel I prescribed. If discomfort persists or worsens, we can move your appointment up. Keep monitoring and let me know.",
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 4, 20, 12),
+      isRead: true
+    };
+    this.messages.set(adminDoctorMessage2.id, adminDoctorMessage2);
+    
+    const adminDoctorMessage3: Message = {
+      id: this.currentIds.message++,
+      senderId: adminUser.id,
+      receiverId: 3, // Dr. Müller
+      content: "Thank you, Dr. Müller. The gel helped significantly. I'll stick with our scheduled appointment unless anything changes. By the way, I was able to walk over 6000 steps yesterday without significant discomfort!",
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 3, 9, 30),
+      isRead: true
+    };
+    this.messages.set(adminDoctorMessage3.id, adminDoctorMessage3);
+    
+    const adminDoctorMessage4: Message = {
+      id: this.currentIds.message++,
+      senderId: 3, // Dr. Müller
+      receiverId: adminUser.id,
+      content: "That's excellent progress! 6000 steps is a significant milestone. Your adaptation to the Suralis system is progressing faster than average. Looking forward to reviewing your metrics at our next appointment.",
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 3, 10, 15),
+      isRead: true
+    };
+    this.messages.set(adminDoctorMessage4.id, adminDoctorMessage4);
+    
+    // Add messages between admin and technician
+    const adminTechMessage1: Message = {
+      id: this.currentIds.message++,
+      senderId: adminUser.id,
+      receiverId: 5, // Technician (technicianUser.id)
+      content: "Hello Mr. Gruber, I've received an alert about a firmware update. Is this something I need to come in for, or can it be done remotely?",
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 2, 14, 20),
+      isRead: true
+    };
+    this.messages.set(adminTechMessage1.id, adminTechMessage1);
+    
+    const adminTechMessage2: Message = {
+      id: this.currentIds.message++,
+      senderId: 5, // Technician
+      receiverId: adminUser.id,
+      content: "Hi there! This particular update requires a visit as we'll need to fine-tune the sensitivity settings after the update. I can add this to your upcoming appointment with Dr. Müller if that works for you. It will only take an additional 15 minutes.",
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 2, 15, 5),
+      isRead: true
+    };
+    this.messages.set(adminTechMessage2.id, adminTechMessage2);
+    
+    const adminTechMessage3: Message = {
+      id: this.currentIds.message++,
+      senderId: adminUser.id,
+      receiverId: 5, // Technician
+      content: "That would be perfect. Thanks for accommodating me. I'll see you at the appointment next week.",
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth(), adminCurrentDate.getDate() - 2, 15, 45),
+      isRead: true
+    };
+    this.messages.set(adminTechMessage3.id, adminTechMessage3);
+    
+    // Add support request for admin
+    const adminSupportRequest1: SupportRequest = {
+      id: this.currentIds.supportRequest++,
+      patientId: adminPatient.id,
+      timestamp: new Date(adminCurrentDate.getFullYear(), adminCurrentDate.getMonth() - 1, 10, 12, 30),
+      subject: "Battery Charging Issue",
+      description: "My Suralis system battery seems to drain faster than usual. It used to last 3 days but now only lasts about 1.5 days between charges.",
+      status: "resolved",
+      priority: "medium",
+      assignedToId: 3, // Technician
+      resolutionNotes: "Replaced battery unit and updated power management firmware. New battery shows normal discharge curve."
+    };
+    this.supportRequests.set(adminSupportRequest1.id, adminSupportRequest1);
     
     const patientUser: User = {
       id: this.currentIds.user++,
