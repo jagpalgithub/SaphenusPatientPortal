@@ -4,10 +4,18 @@ import { useAuth } from "./useAuth";
 import { InsertUpdate } from "@shared/schema";
 import { useToast } from "./use-toast";
 
-export function useUpdates() {
-  const { profile } = useAuth();
+interface UpdatesOptions {
+  enabled?: boolean;
+}
+
+export function useUpdates(options: UpdatesOptions = {}) {
+  const { profile, user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  
+  // Get the patient ID (from profile, user or default for Anna)
+  const patientId = profile?.id || (user ? (user as any).userId || user.id : null) || 1;
+  const isEnabled = options.enabled !== false;
 
   // Get patient updates
   const { 
@@ -15,9 +23,10 @@ export function useUpdates() {
     isLoading,
     error
   } = useQuery({
-    queryKey: [`/api/updates/patient/${profile?.id}`, profile?.id],
-    enabled: !!profile?.id,
+    queryKey: [`/api/updates/patient/${patientId}`, patientId],
+    enabled: !!patientId && isEnabled,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    meta: { priority: 2 } // Medium priority data
   });
 
   // Create update mutation

@@ -3,10 +3,18 @@ import { alertsApi } from "@/lib/api";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
 
-export function useAlerts() {
-  const { profile } = useAuth();
+interface AlertsOptions {
+  enabled?: boolean;
+}
+
+export function useAlerts(options: AlertsOptions = {}) {
+  const { profile, user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  
+  // Get the patient ID (from profile, user or default for Anna)
+  const patientId = profile?.id || (user ? (user as any).userId || user.id : null) || 1;
+  const isEnabled = options.enabled !== false;
 
   // Get all patient device alerts
   const { 
@@ -14,20 +22,22 @@ export function useAlerts() {
     isLoading,
     error
   } = useQuery({
-    queryKey: [`/api/device-alerts/patient/${profile?.id}`, profile?.id],
-    enabled: !!profile?.id,
+    queryKey: [`/api/device-alerts/patient/${patientId}`, patientId],
+    enabled: !!patientId && isEnabled,
     staleTime: 1000 * 60 * 1, // 1 minute - alerts are important
+    meta: { priority: 2 } // Medium priority data
   });
 
-  // Get unread patient device alerts
+  // Get unread patient device alerts - higher priority
   const { 
     data: unreadAlerts,
     isLoading: isLoadingUnread,
     error: unreadError
   } = useQuery({
-    queryKey: [`/api/device-alerts/patient/${profile?.id}/unread`, profile?.id],
-    enabled: !!profile?.id,
+    queryKey: [`/api/device-alerts/patient/${patientId}/unread`, patientId],
+    enabled: !!patientId && isEnabled,
     staleTime: 1000 * 60 * 1, // 1 minute
+    meta: { priority: 3 } // High priority data for notifications
   });
 
   // Mark device alert as read mutation

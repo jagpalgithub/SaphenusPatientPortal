@@ -5,10 +5,18 @@ import { Appointment, InsertAppointment } from "@shared/schema";
 import { useToast } from "./use-toast";
 import { login } from "@/lib/auth";
 
-export function useAppointments() {
+interface AppointmentOptions {
+  enabled?: boolean;
+}
+
+export function useAppointments(options: AppointmentOptions = {}) {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  
+  // Get the patient ID (from profile, user or default for Anna)
+  const patientId = profile?.id || (user ? (user as any).userId || user.id : null) || 1;
+  const isEnabled = options.enabled !== false;
 
   // Get patient appointments
   const { 
@@ -16,9 +24,10 @@ export function useAppointments() {
     isLoading,
     error
   } = useQuery({
-    queryKey: [`/api/appointments/patient/${profile?.id}`, profile?.id],
-    enabled: !!profile?.id,
+    queryKey: [`/api/appointments/patient/${patientId}`, patientId],
+    enabled: !!patientId && isEnabled,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    meta: { priority: 2 } // Medium priority data
   });
 
   // Get doctors for appointment selection
