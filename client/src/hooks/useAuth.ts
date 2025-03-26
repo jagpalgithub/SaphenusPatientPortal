@@ -116,9 +116,18 @@ export function useAuth() {
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: () => {
+      // Clear localStorage auth data
+      localStorage.removeItem('saphenus_auth');
+      
+      // Clear query cache
       queryClient.setQueryData(['/api/auth/user'], null);
       queryClient.setQueryData(['/api/users/profile'], null);
+      
+      // Update global state
       updateAuthState({ isAuthenticated: false, user: null, profile: null });
+      
+      // Force reload to ensure clean state
+      window.location.href = '/login';
     }
   });
 

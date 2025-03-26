@@ -78,21 +78,14 @@ function Router() {
   );
 }
 
-// A simplified component that initializes auth state without causing redirect loops
-function AuthInitializer({ children }: { children: React.ReactNode }) {
-  // Just calling useAuth will initialize the auth system
-  useAuth();
-  
-  return <>{children}</>;
-}
+// We're removing this component as it's causing hook ordering issues
+// Instead we'll initialize auth directly in App
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthInitializer>
-          <AppContent />
-        </AuthInitializer>
+        <AppContent />
       </ThemeProvider>
     </QueryClientProvider>
   );
