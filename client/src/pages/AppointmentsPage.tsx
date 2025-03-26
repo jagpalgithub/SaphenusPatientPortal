@@ -77,10 +77,11 @@ export default function AppointmentsPage() {
     if (!profile) return;
     
     try {
+      // Ensure the date is properly formatted as ISO string for the API
       const newAppointment: Partial<InsertAppointment> = {
         patientId: profile.id,
         doctorId: parseInt(values.doctorId),
-        dateTime: values.dateTime,
+        dateTime: values.dateTime.toISOString(),
         duration: parseInt(values.duration),
         purpose: values.purpose,
         notes: values.notes || null,
@@ -88,6 +89,8 @@ export default function AppointmentsPage() {
         fee: 0,
         feePaid: false,
       };
+      
+      console.log("Creating appointment with data:", newAppointment);
       
       await createAppointment(newAppointment as InsertAppointment);
       setIsCreateDialogOpen(false);
@@ -97,9 +100,10 @@ export default function AppointmentsPage() {
         description: "Your appointment has been scheduled successfully",
       });
     } catch (error) {
+      console.error("Appointment creation error:", error);
       toast({
         title: "Error",
-        description: "Failed to create appointment",
+        description: "Failed to create appointment. Please check all fields and try again.",
         variant: "destructive",
       });
     }
@@ -113,11 +117,13 @@ export default function AppointmentsPage() {
       const updatedAppointment = {
         ...currentAppointment,
         doctorId: parseInt(values.doctorId),
-        dateTime: values.dateTime,
+        dateTime: values.dateTime.toISOString(),
         duration: parseInt(values.duration),
         purpose: values.purpose,
         notes: values.notes || null,
       };
+      
+      console.log("Updating appointment with data:", updatedAppointment);
       
       await updateAppointment(currentAppointment.id, updatedAppointment);
       setIsEditDialogOpen(false);
@@ -127,9 +133,10 @@ export default function AppointmentsPage() {
         description: "Your appointment has been updated successfully",
       });
     } catch (error) {
+      console.error("Appointment update error:", error);
       toast({
         title: "Error",
-        description: "Failed to update appointment",
+        description: "Failed to update appointment. Please check all fields and try again.",
         variant: "destructive",
       });
     }

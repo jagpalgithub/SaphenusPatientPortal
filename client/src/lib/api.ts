@@ -68,23 +68,28 @@ export const userApi = {
 };
 
 // Appointments
+import { Appointment, InsertAppointment } from "@shared/schema";
+
 export const appointmentsApi = {
   getPatientAppointments: async (patientId: number) => {
     const response = await apiRequest("GET", `/api/appointments/patient/${patientId}`);
     return response.json();
   },
   
-  createAppointment: async (data: any) => {
+  createAppointment: async (data: InsertAppointment) => {
+    console.log('Creating appointment with API call data:', data);
     const response = await apiRequest("POST", "/api/appointments", data);
-    return response.json();
+    return response.json() as Promise<Appointment>;
   },
   
-  updateAppointment: async (id: number, data: any) => {
+  updateAppointment: async (id: number, data: Partial<Appointment>) => {
+    console.log('Updating appointment with API call data:', { id, data });
     const response = await apiRequest("PATCH", `/api/appointments/${id}`, data);
-    return response.json();
+    return response.json() as Promise<Appointment>;
   },
   
   deleteAppointment: async (id: number) => {
+    console.log('Deleting appointment with ID:', id);
     await apiRequest("DELETE", `/api/appointments/${id}`);
   }
 };

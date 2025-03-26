@@ -61,10 +61,11 @@ export function useAppointments() {
         description: "Your appointment has been successfully updated",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Failed to update appointment:", error);
       toast({
         title: "Error",
-        description: "Failed to update appointment",
+        description: "Failed to update appointment. Please check all fields and try again.",
         variant: "destructive",
       });
     }
@@ -81,10 +82,11 @@ export function useAppointments() {
         description: "Your appointment has been successfully cancelled",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Failed to cancel appointment:", error);
       toast({
         title: "Error",
-        description: "Failed to cancel appointment",
+        description: "Failed to cancel appointment. Please try again later.",
         variant: "destructive",
       });
     }
