@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, Menu, Search } from "lucide-react";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAlerts } from "@/hooks/useAlerts";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
+import SearchResults from "./SearchResults";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -15,8 +16,31 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const { user } = useAuth();
   const { unreadAlerts } = useAlerts();
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   
   const hasUnreadAlerts = unreadAlerts && unreadAlerts.length > 0;
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Show search results when typing
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setShowSearchResults(value.length > 0);
+  };
 
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm z-10">
@@ -36,7 +60,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
         </div>
 
         <div className="flex-1 flex justify-center px-2 lg:ml-6 lg:justify-end">
-          <div className="max-w-lg w-full lg:max-w-xs">
+          <div className="max-w-lg w-full lg:max-w-xs relative" ref={searchContainerRef}>
             <label htmlFor="search" className="sr-only">
               Search
             </label>
@@ -48,12 +72,20 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
                 id="search"
                 name="search"
                 className="block w-full pl-10 pr-3 py-2 border border-neutral-200 dark:border-gray-700 rounded-md leading-5 bg-neutral-50 dark:bg-gray-800 placeholder-neutral-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder="Search"
+                placeholder="Search pages..."
                 type="search"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
+                onClick={() => searchQuery.length > 0 && setShowSearchResults(true)}
               />
             </div>
+            
+            {/* Search Results Dropdown */}
+            <SearchResults 
+              query={searchQuery} 
+              isOpen={showSearchResults} 
+              onClose={() => setShowSearchResults(false)} 
+            />
           </div>
         </div>
 
