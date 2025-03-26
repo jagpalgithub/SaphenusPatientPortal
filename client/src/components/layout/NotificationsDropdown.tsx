@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { format } from "date-fns";
 import { Check, Info, AlertTriangle, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +16,9 @@ interface NotificationsDropdownProps {
 export default function NotificationsDropdown({ isOpen, onClose }: NotificationsDropdownProps) {
   const { unreadAlerts, dismissAlert } = useAlerts();
   const notificationsRef = useRef<HTMLDivElement>(null);
+  
+  // Ensure unreadAlerts is always an array
+  const alertsArray = Array.isArray(unreadAlerts) ? unreadAlerts : [];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -76,22 +79,26 @@ export default function NotificationsDropdown({ isOpen, onClose }: Notifications
       <div className="p-4 border-b border-neutral-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium">Notifications</h3>
-          <Link href="/alerts">
-            <a className="text-xs text-primary hover:underline" onClick={onClose}>
-              View all
-            </a>
-          </Link>
+          <button 
+            className="text-xs text-primary hover:underline cursor-pointer bg-transparent border-0"
+            onClick={() => {
+              onClose();
+              window.location.href = "/alerts";
+            }}
+          >
+            View all
+          </button>
         </div>
       </div>
 
       <div className="p-2">
-        {!unreadAlerts || unreadAlerts.length === 0 ? (
+        {alertsArray.length === 0 ? (
           <div className="py-4 px-2 text-center">
             <p className="text-sm text-neutral-500 dark:text-gray-400">No new notifications</p>
           </div>
         ) : (
           <div className="space-y-2">
-            {unreadAlerts.map((alert: DeviceAlert) => (
+            {alertsArray.map((alert: DeviceAlert) => (
               <Card key={alert.id} className="border-l-4 border-l-accent">
                 <CardContent className="p-3">
                   <div className="flex items-start">
@@ -124,17 +131,17 @@ export default function NotificationsDropdown({ isOpen, onClose }: Notifications
                         >
                           Mark as Read
                         </Button>
-                        <Link href="/alerts">
-                          <a onClick={onClose}>
-                            <Button
-                              variant="default"
-                              size="sm"
-                              className="h-7 text-xs"
-                            >
-                              View Details
-                            </Button>
-                          </a>
-                        </Link>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={() => {
+                            onClose();
+                            window.location.href = "/alerts";
+                          }}
+                        >
+                          View Details
+                        </Button>
                       </div>
                     </div>
                   </div>
