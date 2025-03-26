@@ -538,7 +538,7 @@ export class MemStorage implements IStorage {
       insuranceNumber: "AT1234567890",
       address: "Rotenturmstraße 15/8, 1010 Vienna, Austria",
       phone: "+43 664 1234567",
-      emergencyContact: "Michael Wagner (Husband), +43 664 7654321",
+      emergencyContact: "Michael Schmidt (Husband), +43 664 7654321",
       amputationType: "Below Knee - Right Leg",
       amputationDate: "2022-01-10",
       prostheticType: "Suralis-Enhanced Lower Limb Prosthesis",
@@ -912,11 +912,11 @@ export class MemStorage implements IStorage {
   private async initializeTestData() {
     // Create initial users (doctors and a patient)
     const patientUser = this.createUser({
-      username: "anna.wagner",
+      username: "anna.schmidt",
       password: "password",
       email: "anna@example.com",
       firstName: "Anna",
-      lastName: "Wagner",
+      lastName: "Schmidt",
       role: "patient"
     });
     
@@ -947,7 +947,7 @@ export class MemStorage implements IStorage {
       role: "doctor" // Using doctor role for access control
     });
     
-    // Create patient record for Anna Wagner
+    // Create patient record for Anna Schmidt
     const anna = this.createPatient({
       userId: patientUser.id,
       dateOfBirth: new Date("1985-06-15"),
