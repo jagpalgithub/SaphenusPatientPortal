@@ -497,10 +497,16 @@ const setupUpdateRoutes = (app: Express) => {
 // Message routes
 const setupMessageRoutes = (app: Express) => {
   // Get user's messages
-  app.get('/api/messages/user/:userId', isAuthenticated, async (req, res) => {
+  app.get('/api/messages/user/:userId?', isAuthenticated, async (req, res) => {
     try {
-      const { userId } = req.params;
-      const messages = await storage.getUserMessages(parseInt(userId));
+      // If userId is not provided in URL, use the current user's ID
+      const userId = req.params.userId || (req.user as any)?.id;
+      
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
+      
+      const messages = await storage.getUserMessages(parseInt(userId.toString()));
       res.json(messages);
     } catch (error) {
       res.status(500).json({ message: 'Failed to get messages', error });

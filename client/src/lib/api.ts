@@ -201,6 +201,9 @@ export const updatesApi = {
 // Messages
 export const messagesApi = {
   getUserMessages: async (userId: number) => {
+    if (!userId) {
+      return [];
+    }
     const response = await apiRequest("GET", `/api/messages/user/${userId}`);
     return response.json();
   },
@@ -211,7 +214,15 @@ export const messagesApi = {
   },
   
   createMessage: async (data: any) => {
-    const response = await apiRequest("POST", "/api/messages", data);
+    // Make sure to format the timestamp properly if it's a Date object
+    const formattedData = {
+      ...data,
+      timestamp: data.timestamp instanceof Date 
+        ? data.timestamp.toISOString() 
+        : data.timestamp,
+    };
+    console.log('Sending message with data:', formattedData);
+    const response = await apiRequest("POST", "/api/messages", formattedData);
     return response.json();
   },
   
