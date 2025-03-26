@@ -54,11 +54,12 @@ export default function HealthProgressChart({ healthMetrics }: HealthProgressCha
             />
             <Legend />
             <Bar yAxisId="left" dataKey="mobilityScore" name="Mobility Score" fill="hsl(var(--primary))" barSize={30} />
+            <Bar yAxisId="right" dataKey="phantomPain" name="Phantom Pain" fill="hsl(var(--destructive))" barSize={20} opacity={0.7} />
             <Line 
               yAxisId="right" 
               type="monotone" 
               dataKey="phantomPain" 
-              name="Phantom Pain" 
+              name="Phantom Pain (Line)" 
               stroke="hsl(var(--accent))" 
               activeDot={{ r: 8 }} 
             />
@@ -70,9 +71,13 @@ export default function HealthProgressChart({ healthMetrics }: HealthProgressCha
           <span className="h-3 w-3 bg-primary rounded-sm mr-2"></span>
           <span className="text-sm text-neutral-600">Mobility Score</span>
         </div>
+        <div className="flex items-center mr-4">
+          <span className="h-3 w-3 bg-destructive rounded-sm mr-2"></span>
+          <span className="text-sm text-neutral-600">Phantom Pain (Bar)</span>
+        </div>
         <div className="flex items-center">
           <span className="h-3 w-3 bg-accent rounded-sm mr-2"></span>
-          <span className="text-sm text-neutral-600">Phantom Pain</span>
+          <span className="text-sm text-neutral-600">Phantom Pain (Line)</span>
         </div>
       </CardFooter>
     </Card>

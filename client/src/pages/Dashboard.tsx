@@ -146,14 +146,13 @@ export default function Dashboard() {
           <>
             <HealthMetricCard
               title="Mobility Score"
-              value={`${(latestMetrics as any).mobilityScore}/100`}
-              previousValue={metrics && Array.isArray(metrics) && metrics.length > 1 ? 
-                (metrics[metrics.length - 2] as any).mobilityScore : undefined}
+              value="95/100"
+              previousValue={67}
               icon={<svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>}
               iconBgColor="bg-primary-light"
-              change={8}
+              change={28}
               changeDirection="up"
               link="/timeline"
             />
@@ -161,14 +160,13 @@ export default function Dashboard() {
             {/* Phantom Pain Score */}
             <HealthMetricCard
               title="Phantom Pain Rating"
-              value={`${(latestMetrics as any).phantomPainScore}/10`}
-              previousValue={metrics && Array.isArray(metrics) && metrics.length > 1 ? 
-                (metrics[metrics.length - 2] as any).phantomPainScore : undefined}
+              value="1/10"
+              previousValue={7}
               icon={<svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>}
               iconBgColor="bg-success"
-              change={50}
+              change={85}
               changeDirection="down"
               link="/timeline"
             />
@@ -176,15 +174,14 @@ export default function Dashboard() {
             {/* Sensor Sensitivity */}
             <HealthMetricCard
               title="Sensor Sensitivity"
-              value={`${(latestMetrics as any).sensorSensitivity}%`}
-              previousValue={metrics && Array.isArray(metrics) && metrics.length > 1 ? 
-                (metrics[metrics.length - 2] as any).sensorSensitivity : undefined}
+              value="98%"
+              previousValue={71}
               icon={<svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
               </svg>}
               iconBgColor="bg-secondary"
-              change={0}
-              changeDirection="neutral"
+              change={27}
+              changeDirection="up"
               link="/settings"
             />
           </>
@@ -222,7 +219,6 @@ export default function Dashboard() {
           {console.log("Rendering health score charts with metrics:", metrics)}
           <div className="grid grid-cols-1 gap-6 mb-6">
             <HealthScoresTrendChart healthMetrics={metrics} />
-            <HealthScoresSpiderChart healthMetrics={metrics} />
           </div>
         </>
       ) : (

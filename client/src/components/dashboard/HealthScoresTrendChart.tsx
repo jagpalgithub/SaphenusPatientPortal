@@ -192,15 +192,31 @@ export default function HealthScoresTrendChart({ healthMetrics }: HealthScoresTr
           </ComposedChart>
         </ResponsiveContainer>
       </CardContent>
-      <CardFooter className="flex justify-center px-6 py-4 border-t border-neutral-200">
-        <p className="text-xs text-neutral-500 text-center">
-          Color-coded health scores indicate progression status: 
-          <span className="inline-block w-3 h-3 rounded-full bg-red-500 mx-1 align-middle"></span>Critical,  
-          <span className="inline-block w-3 h-3 rounded-full bg-amber-500 mx-1 align-middle"></span>Needs Attention,  
-          <span className="inline-block w-3 h-3 rounded-full bg-indigo-500 mx-1 align-middle"></span>Improving,  
-          <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mx-1 align-middle"></span>Good,  
-          <span className="inline-block w-3 h-3 rounded-full bg-green-500 mx-1 align-middle"></span>Excellent
-        </p>
+      <CardFooter className="flex flex-wrap justify-center gap-3 px-6 py-4 border-t border-neutral-200">
+        <div className="flex items-center">
+          <span className="inline-block w-3 h-3 rounded-full bg-[#0284c7] mx-1 align-middle"></span>
+          <span className="text-xs text-neutral-600">Overall Health</span>
+        </div>
+        <div className="flex items-center">
+          <span className="inline-block w-3 h-3 rounded-full bg-[#0ea5e9] mx-1 align-middle"></span>
+          <span className="text-xs text-neutral-600">Mobility</span>
+        </div>
+        <div className="flex items-center">
+          <span className="inline-block w-3 h-3 rounded-full bg-[#6366f1] mx-1 align-middle"></span>
+          <span className="text-xs text-neutral-600">Gait Stability</span>
+        </div>
+        <div className="flex items-center">
+          <span className="inline-block w-3 h-3 rounded-full bg-[#a855f7] mx-1 align-middle"></span>
+          <span className="text-xs text-neutral-600">Sensor Sensitivity</span>
+        </div>
+        <div className="flex items-center">
+          <span className="inline-block w-3 h-3 rounded-full bg-[#f59e0b] mx-1 align-middle"></span>
+          <span className="text-xs text-neutral-600">Steps</span>
+        </div>
+        <div className="flex items-center">
+          <span className="inline-block w-3 h-3 rounded-full bg-[#ef4444] mx-1 align-middle"></span>
+          <span className="text-xs text-neutral-600">Pain Level</span>
+        </div>
       </CardFooter>
     </Card>
   );
