@@ -19,18 +19,29 @@ import { useEffect } from "react";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 // Protected route component
+// Fixed to ensure hooks are called consistently in all code paths
 function ProtectedRoute({ component: Component, ...rest }: { component: React.ComponentType<any>, path?: string }) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const [location] = useLocation();
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const [, navigate] = useLocation();
   
+  // Use a single effect for redirection
+  useEffect(() => {
+    if (!isLoading && (!isAuthenticated || !user)) {
+      navigate('/login');
+    }
+  }, [isLoading, isAuthenticated, user, navigate]);
+  
+  // Show loading state while checking authentication
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
   }
   
-  if (!isAuthenticated) {
-    return <Redirect to="/login" />;
+  // If not authenticated, show redirecting message
+  if (!isAuthenticated || !user) {
+    return <div className="flex min-h-screen items-center justify-center">Redirecting to login...</div>;
   }
   
+  // If authenticated, render the component
   return <Component {...rest} />;
 }
 
@@ -67,18 +78,10 @@ function Router() {
   );
 }
 
-// A component that initializes auth state
+// A simplified component that initializes auth state without causing redirect loops
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   // Just calling useAuth will initialize the auth system
-  const { isAuthenticated } = useAuth();
-  const [location, navigate] = useLocation();
-  
-  // This effect ensures we redirect to login page when not authenticated
-  useEffect(() => {
-    if (location !== '/login' && !isAuthenticated) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, navigate, location]);
+  useAuth();
   
   return <>{children}</>;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -28,10 +28,30 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { login } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
+  // Check if user is already authenticated on component mount
+  useEffect(() => {
+    async function checkAuthentication() {
+      try {
+        const response = await fetch('/api/auth/user', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          // User is already authenticated, redirect to dashboard
+          window.location.href = '/';
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        // If error, stay on login page
+      }
+    }
+    
+    checkAuthentication();
+  }, []);
 
   // Set up form with default values for Anna login
   const form = useForm<LoginFormValues>({
@@ -72,8 +92,15 @@ export default function LoginPage() {
       
       console.log("Login successful, redirecting to dashboard...");
       
-      // Force a hard page reload to reset all state and start fresh
-      window.location.replace('/');
+      // Force a hard browser redirect with delay to make sure the session is stored
+      setTimeout(() => {
+        // First, let's clear any potential cached state
+        sessionStorage.clear();
+        localStorage.clear();
+        
+        // Then use a hard redirect to the root URL
+        window.location.href = '/';
+      }, 1000);
     } catch (error) {
       console.error("Login error:", error);
       toast({
