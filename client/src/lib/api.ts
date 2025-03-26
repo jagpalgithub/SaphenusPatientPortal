@@ -76,15 +76,31 @@ export const appointmentsApi = {
     return response.json();
   },
   
-  createAppointment: async (data: InsertAppointment) => {
-    console.log('Creating appointment with API call data:', data);
-    const response = await apiRequest("POST", "/api/appointments", data);
+  createAppointment: async (data: any) => {
+    // Format data properly before sending to API
+    const apiData = {
+      ...data,
+      dateTime: data.dateTime instanceof Date 
+        ? data.dateTime.toISOString() 
+        : data.dateTime,
+    };
+    
+    console.log('Creating appointment with API call data:', apiData);
+    const response = await apiRequest("POST", "/api/appointments", apiData);
     return response.json() as Promise<Appointment>;
   },
   
-  updateAppointment: async (id: number, data: Partial<Appointment>) => {
-    console.log('Updating appointment with API call data:', { id, data });
-    const response = await apiRequest("PATCH", `/api/appointments/${id}`, data);
+  updateAppointment: async (id: number, data: any) => {
+    // Format data properly before sending to API
+    const apiData = {
+      ...data,
+      dateTime: data.dateTime instanceof Date 
+        ? data.dateTime.toISOString() 
+        : data.dateTime,
+    };
+    
+    console.log('Updating appointment with API call data:', { id, data: apiData });
+    const response = await apiRequest("PATCH", `/api/appointments/${id}`, apiData);
     return response.json() as Promise<Appointment>;
   },
   

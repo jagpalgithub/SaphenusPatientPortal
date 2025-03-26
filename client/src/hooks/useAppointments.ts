@@ -32,18 +32,10 @@ export function useAppointments() {
 
   // Create appointment mutation
   const createMutation = useMutation({
-    mutationFn: async (appointment: InsertAppointment) => {
-      // Convert Date to ISO string if it's not already
-      const appointmentData = {
-        ...appointment,
-        dateTime: appointment.dateTime instanceof Date 
-          ? appointment.dateTime.toISOString() 
-          : appointment.dateTime
-      };
-      
+    mutationFn: async (appointment: any) => {
       try {
-        // First try to create the appointment
-        return await appointmentsApi.createAppointment(appointmentData);
+        // First try to create the appointment - date formatting handled in API
+        return await appointmentsApi.createAppointment(appointment);
       } catch (err) {
         // If unauthorized, try to login again
         if (err instanceof Error && err.toString().includes("401")) {
@@ -51,7 +43,7 @@ export function useAppointments() {
             console.log("Authentication failed. Attempting to login again...");
             await login("anna.wagner", "password");
             // Retry after login
-            return await appointmentsApi.createAppointment(appointmentData);
+            return await appointmentsApi.createAppointment(appointment);
           }
         }
         throw err;
@@ -76,8 +68,9 @@ export function useAppointments() {
 
   // Update appointment mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<Appointment> }) => {
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
       try {
+        // Date formatting handled in API layer
         return await appointmentsApi.updateAppointment(id, data);
       } catch (err) {
         // If unauthorized, try to login again
@@ -145,12 +138,12 @@ export function useAppointments() {
   });
 
   // Create a new appointment
-  const createAppointment = async (appointment: InsertAppointment) => {
+  const createAppointment = async (appointment: any) => {
     return createMutation.mutateAsync(appointment);
   };
 
   // Update an appointment
-  const updateAppointment = async (id: number, data: Partial<Appointment>) => {
+  const updateAppointment = async (id: number, data: any) => {
     return updateMutation.mutateAsync({ id, data });
   };
 
