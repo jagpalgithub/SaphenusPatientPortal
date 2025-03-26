@@ -57,6 +57,9 @@ function BaseSidebar({ onNavItemClick }: { onNavItemClick?: () => void }) {
   const { user } = useAuth();
   const { unreadAlerts } = useAlerts();
   
+  // Ensure unreadAlerts is an array by defaulting to empty array if not
+  const alertsArray = Array.isArray(unreadAlerts) ? unreadAlerts : [];
+  
   // Navigation content is shared between mobile and desktop
   const renderNavigation = () => (
     <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto scrollbar-hide">
@@ -100,7 +103,7 @@ function BaseSidebar({ onNavItemClick }: { onNavItemClick?: () => void }) {
         icon={<Bell className="text-inherit" />}
         label="Device Alerts"
         active={location === "/alerts"}
-        badge={unreadAlerts?.length || 0} // Ensures we have a numeric value or 0
+        badge={alertsArray.length}
         onClick={onNavItemClick}
       />
       <NavItem
@@ -124,8 +127,11 @@ function BaseSidebar({ onNavItemClick }: { onNavItemClick?: () => void }) {
   const renderUserProfile = () => (
     <div className="flex items-center px-4 py-3 border-b border-neutral-200 dark:border-gray-700">
       <Avatar className="h-10 w-10">
-        <AvatarImage src={user?.profileImage || undefined} alt={`${user?.firstName} ${user?.lastName}`} />
-        <AvatarFallback>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</AvatarFallback>
+        {user?.profileImage ? (
+          <AvatarImage src={user.profileImage} alt={`${user?.firstName} ${user?.lastName}`} />
+        ) : (
+          <AvatarFallback>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</AvatarFallback>
+        )}
       </Avatar>
       <div className="ml-3">
         <p className="text-sm font-medium text-neutral-800 dark:text-gray-200">

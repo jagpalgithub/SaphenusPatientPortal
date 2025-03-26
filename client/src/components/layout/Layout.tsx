@@ -1,5 +1,5 @@
-import { useState } from "react";
-import Sidebar from "./Sidebar";
+import { useState, useEffect } from "react";
+import Sidebar, { MobileSidebar } from "./Sidebar";
 import Header from "./Header";
 import Footer from "./Footer";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,9 +24,15 @@ export default function Layout({ children }: LayoutProps) {
     );
   }
 
-  // In a real application, we would redirect to login here
+  // Redirect to login page if not authenticated
   if (!isAuthenticated) {
-    // For demo purposes, we're assuming the user is automatically logged in
+    // Using a one-time effect to redirect
+    // This is preferred over using setLocation directly as it avoids additional renders
+    useEffect(() => {
+      setLocation('/auth');
+    }, []);
+    
+    return null; // Don't render anything while redirecting
   }
 
   return (
