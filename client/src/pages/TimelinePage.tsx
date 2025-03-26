@@ -91,10 +91,10 @@ export default function TimelinePage() {
       prescriptions.forEach((prescription) => {
         items.push({
           id: prescription.id,
-          date: new Date(prescription.datePrescribed),
+          date: new Date(prescription.startDate),
           type: "prescription_update",
-          title: `Prescription: ${prescription.medication}`,
-          description: `${prescription.dosage} - ${prescription.frequency}. ${prescription.instructions}`,
+          title: `Prescription: ${prescription.medicationName}`,
+          description: `${prescription.dosage} - ${prescription.frequency}${prescription.notes ? `. ${prescription.notes}` : ''}`,
           source: `Dr. ${prescription.doctor.firstName} ${prescription.doctor.lastName}`,
           icon: <FileText className="h-5 w-5 text-white" />,
         });
