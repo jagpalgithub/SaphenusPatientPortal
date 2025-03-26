@@ -16,6 +16,7 @@ import { useUpdates } from "@/hooks/useUpdates";
 import { useAppointments } from "@/hooks/useAppointments";
 import { usePrescriptions } from "@/hooks/usePrescriptions";
 import { useAlerts } from "@/hooks/useAlerts";
+import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Link } from "wouter";
 
@@ -26,6 +27,7 @@ export default function Dashboard() {
   const { appointments, createAppointment, updateAppointment, deleteAppointment, isLoading: isLoadingAppointments } = useAppointments();
   const { prescriptions, isLoading: isLoadingPrescriptions } = usePrescriptions();
   const { alerts, dismissAlert, resolveAlert, isLoading: isLoadingAlerts } = useAlerts();
+  const { toast } = useToast();
 
   const handleNewAppointment = () => {
     // This function is kept for the AppointmentList component's prop
@@ -44,13 +46,30 @@ export default function Dashboard() {
   };
 
   const handleDismissAlert = (id: number) => {
-    dismissAlert(id);
+    dismissAlert(id)
+      .then(() => {
+        toast({
+          title: "Alert dismissed",
+          description: "The alert has been marked as read",
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Error",
+          description: "Failed to dismiss alert",
+          variant: "destructive",
+        });
+      });
   };
 
   const handleScheduleFromAlert = (id: number) => {
-    // This would typically open the appointment scheduling with pre-filled data
-    console.log("Schedule from alert", id);
-    handleNewAppointment();
+    // Find the alert to get its details
+    const alertsList = Array.isArray(alerts) ? alerts : [];
+    const alert = alertsList.find((a: any) => a.id === id);
+    if (!alert) return;
+    
+    // Navigate to appointments page with some context
+    window.location.href = "/appointments?from=alert&alertId=" + id;
   };
 
   // Get next appointment
