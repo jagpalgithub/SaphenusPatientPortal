@@ -33,16 +33,16 @@ const NavItem = ({ href, icon, label, active, badge, onClick }: NavItemProps) =>
     <Link href={href} onClick={handleClick}>
       <div
         className={cn(
-          "flex items-center px-2 py-2 text-sm font-medium rounded-md cursor-pointer",
+          "flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors duration-150",
           active
             ? "bg-primary text-white dark:text-white"
             : "text-neutral-700 hover:bg-neutral-100 dark:text-gray-300 dark:hover:bg-gray-800"
         )}
       >
-        <span className="mr-3 h-5 w-5">{icon}</span>
-        {label}
+        <span className="mr-3 h-5 w-5 flex-shrink-0">{icon}</span>
+        <span className="truncate">{label}</span>
         {badge && badge > 0 && (
-          <span className="inline-flex items-center justify-center w-5 h-5 ml-auto text-xs font-medium rounded-full bg-accent text-white">
+          <span className="inline-flex items-center justify-center w-5 h-5 ml-auto text-xs font-medium rounded-full bg-accent text-white flex-shrink-0">
             {badge}
           </span>
         )}
@@ -163,9 +163,120 @@ function BaseSidebar({ onNavItemClick }: { onNavItemClick?: () => void }) {
 
 // Mobile-specific sidebar component (used in the mobile menu)
 export function MobileSidebar({ onNavItemClick }: { onNavItemClick: () => void }) {
+  const [location] = useLocation();
+  const { user } = useAuth();
+  const { unreadAlerts } = useAlerts();
+  
+  // Ensure unreadAlerts is an array by defaulting to empty array if not
+  const alertsArray = Array.isArray(unreadAlerts) ? unreadAlerts : [];
+  
+  // Custom mobile-specific navigation with more compact styling
+  const renderMobileNavigation = () => (
+    <nav className="flex-1 px-2 py-2 space-y-1 overflow-y-auto scrollbar-hide">
+      <NavItem
+        href="/"
+        icon={<Home className="text-inherit" />}
+        label="Dashboard"
+        active={location === "/"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/timeline"
+        icon={<Clock className="text-inherit" />}
+        label="Treatment Timeline"
+        active={location === "/timeline"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/prescriptions"
+        icon={<FileText className="text-inherit" />}
+        label="Prescriptions"
+        active={location === "/prescriptions"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/appointments"
+        icon={<Calendar className="text-inherit" />}
+        label="Appointments"
+        active={location === "/appointments"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/messages"
+        icon={<MessageSquare className="text-inherit" />}
+        label="Messages"
+        active={location === "/messages"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/alerts"
+        icon={<Bell className="text-inherit" />}
+        label="Device Alerts"
+        active={location === "/alerts"}
+        badge={alertsArray.length}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/settings"
+        icon={<Settings className="text-inherit" />}
+        label="Settings"
+        active={location === "/settings"}
+        onClick={onNavItemClick}
+      />
+      <NavItem
+        href="/support"
+        icon={<HelpCircle className="text-inherit" />}
+        label="Help & Support"
+        active={location === "/support"}
+        onClick={onNavItemClick}
+      />
+    </nav>
+  );
+  
+  // Custom mobile-specific user profile section
+  const renderMobileUserProfile = () => (
+    <div className="flex items-center px-4 py-3 border-b border-neutral-200 dark:border-gray-700">
+      <Avatar className="h-8 w-8">
+        {user?.profileImage ? (
+          <AvatarImage src={user.profileImage} alt={`${user?.firstName} ${user?.lastName}`} />
+        ) : (
+          <AvatarFallback>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</AvatarFallback>
+        )}
+      </Avatar>
+      <div className="ml-3">
+        <p className="text-sm font-medium text-neutral-800 dark:text-gray-200">
+          {user?.firstName} {user?.lastName}
+        </p>
+        <p className="text-xs font-medium text-neutral-500 dark:text-gray-400">
+          {user?.role === "patient" ? "Patient" : "Doctor"}
+        </p>
+      </div>
+    </div>
+  );
+  
+  // Custom mobile-specific logo section
+  const renderMobileLogo = () => (
+    <div className="flex items-center justify-between h-14 px-4 border-b border-neutral-200 dark:border-gray-700 bg-primary dark:bg-primary">
+      <span className="text-base font-semibold text-white dark:text-white">Saphenus PMS</span>
+      <button 
+        onClick={onNavItemClick}
+        className="text-white hover:bg-primary-dark rounded-full p-1"
+        aria-label="Close menu"
+      >
+        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  );
+
   return (
-    <div className="w-full h-full">
-      <BaseSidebar onNavItemClick={onNavItemClick} />
+    <div className="w-full h-full flex flex-col overflow-hidden">
+      {renderMobileLogo()}
+      {renderMobileUserProfile()}
+      <div className="flex-1 overflow-y-auto">
+        {renderMobileNavigation()}
+      </div>
     </div>
   );
 }
