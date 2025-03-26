@@ -57,7 +57,13 @@ export const userApi = {
   },
   
   updatePatient: async (id: number, data: any) => {
-    const response = await apiRequest("PATCH", `/api/patients/${id}`, data);
+    // Remove undefined or empty string values before sending
+    const cleanedData = Object.fromEntries(
+      Object.entries(data).filter(([_, value]) => value !== undefined && value !== "")
+    );
+    
+    console.log('Updating patient with data:', cleanedData);
+    const response = await apiRequest("PATCH", `/api/patients/${id}`, cleanedData);
     return response.json();
   },
   

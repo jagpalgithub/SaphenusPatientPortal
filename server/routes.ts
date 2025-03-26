@@ -527,10 +527,22 @@ const setupMessageRoutes = (app: Express) => {
   // Create a new message
   app.post('/api/messages', isAuthenticated, async (req, res) => {
     try {
-      const messageData = insertMessageSchema.parse(req.body);
-      const message = await storage.createMessage(messageData);
+      console.log('Received message data:', req.body);
+      
+      // Ensure timestamp is a valid Date object on the server side
+      const messageData = {
+        ...req.body,
+        timestamp: new Date(req.body.timestamp)
+      };
+      
+      // Parse with schema
+      const validMessageData = insertMessageSchema.parse(messageData);
+      const message = await storage.createMessage(validMessageData);
+      
+      console.log('Message created successfully:', message);
       res.status(201).json(message);
     } catch (error) {
+      console.error('Failed to create message:', error);
       res.status(400).json({ message: 'Invalid message data', error });
     }
   });
