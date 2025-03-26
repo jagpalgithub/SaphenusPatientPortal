@@ -99,7 +99,7 @@ export function useMessages() {
         queryClient.invalidateQueries({ queryKey: ['/api/messages/user', userId] });
         
         // Also update the cache directly to ensure the UI reflects the change immediately
-        const currentMessages = queryClient.getQueryData(['/api/messages/user', userId]) || [];
+        const currentMessages = queryClient.getQueryData<any[]>(['/api/messages/user', userId]) || [];
         
         // Create a new array with the updated message
         const updatedMessages = currentMessages.map((msg: any) => 
@@ -107,7 +107,7 @@ export function useMessages() {
         );
         
         // Update the cache with the updated messages
-        queryClient.setQueryData(['/api/messages/user', userId], updatedMessages);
+        queryClient.setQueryData<any[]>(['/api/messages/user', userId], updatedMessages);
       }
     },
     onError: () => {

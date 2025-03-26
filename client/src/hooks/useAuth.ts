@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { User, Patient } from "@shared/schema";
-import { login, logout, getCurrentUser } from "@/lib/auth";
+import { login, logout, getCurrentUser, ExtendedUser } from "@/lib/auth";
 import { userApi } from "@/lib/api";
 
 // Simplified hook-based auth without using context provider
@@ -9,7 +9,7 @@ import { userApi } from "@/lib/api";
 let globalAuthState = {
   isAuthenticated: false,
   isLoading: true,
-  user: null as User | null,
+  user: null as ExtendedUser | null,
   profile: null as Patient | null,
 };
 
@@ -110,7 +110,7 @@ export function useAuth() {
     data: user, 
     isLoading: isLoadingUser,
     error: userError
-  } = useQuery<User | null>({
+  } = useQuery<ExtendedUser | null>({
     queryKey: ['/api/auth/user'],
     enabled: !checkLocalAuth() // Only run if no local auth
   });
@@ -169,7 +169,7 @@ export function useAuth() {
 
   // Update user mutation
   const updateUserMutation = useMutation({
-    mutationFn: (userData: Partial<User>) => 
+    mutationFn: (userData: Partial<ExtendedUser>) => 
       userApi.updateUser(userData.id as number, userData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
@@ -194,7 +194,7 @@ export function useAuth() {
     await logoutMutation.mutateAsync();
   };
 
-  const handleUpdateUser = async (userData: Partial<User>) => {
+  const handleUpdateUser = async (userData: Partial<ExtendedUser>) => {
     return updateUserMutation.mutateAsync(userData);
   };
 

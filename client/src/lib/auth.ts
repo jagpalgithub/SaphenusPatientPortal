@@ -1,9 +1,14 @@
 import { authApi } from "./api";
 import { User } from "@shared/schema";
 
+// Extended user type to include userId for localStorage compatibility
+export type ExtendedUser = User & {
+  userId?: number;
+};
+
 export interface AuthState {
   isAuthenticated: boolean;
-  user: User | null;
+  user: ExtendedUser | null;
   isLoading: boolean;
   error: Error | null;
 }
