@@ -488,7 +488,7 @@ export class MemStorage implements IStorage {
       password: "loginpassword2$",
       email: "anna@saphenus.com",
       firstName: "Anna",
-      lastName: "Wagner",
+      lastName: "Schmidt",
       role: "patient",
       profileImage: null
     };
@@ -954,7 +954,7 @@ export class MemStorage implements IStorage {
       insuranceNumber: "AT1234567890",
       address: "Rotenturmstraße 15/8, 1010 Vienna, Austria",
       phone: "+43 664 1234567",
-      emergencyContact: "Michael Wagner (Husband), +43 664 7654321",
+      emergencyContact: "Michael Schmidt (Husband), +43 664 7654321",
       amputationType: "Below Knee - Right Leg",
       amputationDate: new Date("2022-01-10"),
       prostheticType: "Suralis-Enhanced Lower Limb Prosthesis",
