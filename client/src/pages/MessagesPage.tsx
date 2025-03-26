@@ -65,20 +65,55 @@ export default function MessagesPage() {
 
   // Send a message
   const handleSendMessage = () => {
-    if (!messageText.trim() || !selectedConversation || !user) return;
+    if (!messageText.trim() || !selectedConversation || !user) {
+      console.error("Cannot send message: missing required data", {
+        hasMessageText: !!messageText.trim(),
+        hasSelectedConversation: !!selectedConversation,
+        hasUser: !!user
+      });
+      
+      toast({
+        title: "Cannot send message",
+        description: "Please make sure you're logged in and have selected a recipient",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    console.log("Attempting to send message to recipient ID:", selectedConversation);
+    console.log("Current user object:", user);
+    
+    // Get the sender ID from the user object
+    const senderId = user.id;
+    
+    if (!senderId) {
+      console.error("Cannot send message: no valid sender ID found in user object", user);
+      toast({
+        title: "Error",
+        description: "Your user profile is incomplete. Please try logging out and back in.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     sendMessage({
-      senderId: user.id,
+      senderId: senderId,
       receiverId: selectedConversation,
       content: messageText,
       timestamp: new Date(),
       isRead: false,
     }).then(() => {
       setMessageText("");
+      toast({
+        title: "Success",
+        description: "Message sent successfully",
+        variant: "default",
+      });
     }).catch(error => {
+      console.error("Failed to send message:", error);
       toast({
         title: "Error",
-        description: "Failed to send message",
+        description: "Failed to send message. Please try again.",
         variant: "destructive",
       });
     });

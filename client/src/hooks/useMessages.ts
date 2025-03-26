@@ -23,16 +23,29 @@ export function useMessages() {
   // Create message mutation
   const createMutation = useMutation({
     mutationFn: (message: InsertMessage) => {
-      console.log('Sending message with data:', message);
-      // Ensure user ID is set correctly
-      if (!message.senderId && user?.id) {
-        message.senderId = user.id;
+      // Log current user information for debugging
+      console.log('Current user:', user);
+      
+      // Create a copy to avoid modifying the original object
+      const messageToSend = { ...message };
+      
+      // Ensure sender ID is set correctly - use user.id as primary source
+      if (!messageToSend.senderId && user?.id) {
+        console.log('Setting senderId from user.id:', user.id);
+        messageToSend.senderId = user.id;
+      } else if (!messageToSend.senderId) {
+        // Last resort fallback
+        console.error('No valid sender ID found in user object');
+        throw new Error('User ID not available. Please try logging out and back in.');
       }
+      
       // Ensure timestamp is properly formatted
-      if (!message.timestamp) {
-        message.timestamp = new Date();
+      if (!messageToSend.timestamp) {
+        messageToSend.timestamp = new Date();
       }
-      return messagesApi.createMessage(message);
+      
+      console.log('Sending message with final data:', messageToSend);
+      return messagesApi.createMessage(messageToSend);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/messages/user', user?.id] });
@@ -41,7 +54,7 @@ export function useMessages() {
       console.error('Failed to send message:', error);
       toast({
         title: "Error",
-        description: "Failed to send message",
+        description: "Failed to send message. Please check your connection and try again.",
         variant: "destructive",
       });
     }
