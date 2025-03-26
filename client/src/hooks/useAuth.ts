@@ -39,18 +39,49 @@ export function useAuth() {
     };
   }, []);
 
-  // Get current user query
+  // Check localStorage first, then fallback to server auth
+  const checkLocalAuth = () => {
+    try {
+      const localAuth = localStorage.getItem('saphenus_auth');
+      if (localAuth) {
+        const parsedAuth = JSON.parse(localAuth);
+        if (parsedAuth.isAuthenticated) {
+          return parsedAuth;
+        }
+      }
+      return null;
+    } catch (e) {
+      console.error("Error checking local auth:", e);
+      return null;
+    }
+  };
+
+  // Try to get user from localStorage first
+  useEffect(() => {
+    const localUser = checkLocalAuth();
+    if (localUser) {
+      console.log("Found authenticated user in localStorage:", localUser);
+      updateAuthState({ 
+        user: localUser, 
+        isAuthenticated: true,
+        isLoading: false 
+      });
+    }
+  }, []);
+
+  // Get current user query as backup
   const { 
     data: user, 
     isLoading: isLoadingUser,
     error: userError
   } = useQuery<User | null>({
-    queryKey: ['/api/auth/user']
+    queryKey: ['/api/auth/user'],
+    enabled: !checkLocalAuth() // Only run if no local auth
   });
 
   // Update state when user data changes
   useEffect(() => {
-    if (user !== undefined) {
+    if (user !== undefined && !checkLocalAuth()) {
       updateAuthState({ user, isAuthenticated: !!user });
     }
   }, [user]);

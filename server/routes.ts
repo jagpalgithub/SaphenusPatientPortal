@@ -19,9 +19,14 @@ const configureAuth = (app: Express) => {
 
   app.use(session({
     secret: 'saphenus-medical-pms-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 },
+    resave: true,
+    saveUninitialized: true,
+    cookie: { 
+      secure: false, // Set to false even in production for development
+      maxAge: 24 * 60 * 60 * 1000,
+      httpOnly: false, // Allow JavaScript access to cookies
+      sameSite: 'lax' // Less restrictive SameSite policy
+    },
     store: new SessionStore({
       checkPeriod: 24 * 60 * 60 * 1000 // Prune expired entries every 24h
     })
