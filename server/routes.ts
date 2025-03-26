@@ -183,12 +183,25 @@ const setupPatientRoutes = (app: Express) => {
   app.patch('/api/patients/:id', isAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;
-      const patient = await storage.updatePatient(parseInt(id), req.body);
+      console.log('Updating patient with ID:', id, 'Data:', req.body);
+      
+      // Clean up the data to handle null/undefined values properly
+      const cleanedData: Record<string, any> = {};
+      
+      for (const [key, value] of Object.entries(req.body)) {
+        // Convert empty strings to null for database compatibility
+        cleanedData[key] = value === "" ? null : value;
+      }
+      
+      const patient = await storage.updatePatient(parseInt(id), cleanedData);
       if (!patient) {
         return res.status(404).json({ message: 'Patient not found' });
       }
+      
+      console.log('Patient updated successfully:', patient);
       res.json(patient);
     } catch (error) {
+      console.error('Failed to update patient:', error);
       res.status(400).json({ message: 'Invalid patient data', error });
     }
   });

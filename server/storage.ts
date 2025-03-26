@@ -967,8 +967,21 @@ export class MemStorage implements IStorage {
     const patient = this.patients.get(id);
     if (!patient) return undefined;
     
-    const updatedPatient = { ...patient, ...patientUpdate };
+    // Create a clean update object with validated fields
+    const cleanUpdate: Partial<Patient> = {};
+    
+    // Process each field in the update
+    Object.entries(patientUpdate).forEach(([key, value]) => {
+      // Only include keys that exist in the patient object
+      if (key in patient) {
+        // Safely handle the update
+        cleanUpdate[key as keyof Patient] = value;
+      }
+    });
+    
+    const updatedPatient = { ...patient, ...cleanUpdate };
     this.patients.set(id, updatedPatient);
+    console.log(`Patient ${id} updated successfully:`, updatedPatient);
     return updatedPatient;
   }
 
