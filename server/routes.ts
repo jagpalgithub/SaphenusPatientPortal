@@ -221,10 +221,24 @@ const setupAppointmentRoutes = (app: Express) => {
   // Create a new appointment
   app.post('/api/appointments', isAuthenticated, async (req, res) => {
     try {
-      const appointmentData = insertAppointmentSchema.parse(req.body);
+      console.log("Appointment creation - body:", req.body);
+      // Use a more flexible schema to handle Date objects
+      const appointmentData = {
+        patientId: Number(req.body.patientId),
+        doctorId: Number(req.body.doctorId),
+        dateTime: new Date(req.body.dateTime),
+        duration: Number(req.body.duration),
+        purpose: String(req.body.purpose),
+        status: req.body.status || 'scheduled',
+        notes: req.body.notes || null,
+        fee: req.body.fee !== undefined ? Number(req.body.fee) : null,
+        feePaid: req.body.feePaid !== undefined ? Boolean(req.body.feePaid) : false
+      };
+      
       const appointment = await storage.createAppointment(appointmentData);
       res.status(201).json(appointment);
     } catch (error) {
+      console.error("Appointment creation error:", error);
       res.status(400).json({ message: 'Invalid appointment data', error });
     }
   });

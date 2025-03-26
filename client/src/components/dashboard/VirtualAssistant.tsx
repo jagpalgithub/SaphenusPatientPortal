@@ -43,20 +43,35 @@ export default function VirtualAssistant() {
     setTimeout(() => {
       // This would be replaced with actual AI assistant logic
       let responseContent = "";
+      const userMessageLower = message.toLowerCase();
       
-      if (message.toLowerCase().includes("discomfort") || message.toLowerCase().includes("pain")) {
+      // Handle different user query types
+      if (userMessageLower.includes("discomfort") || userMessageLower.includes("pain")) {
         responseContent = `I'm sorry to hear that. Discomfort could be caused by several factors:
           • Improper fitting of your prosthesis
           • Sensitivity adjustment needed for your Suralis system
           • Skin irritation at contact points
           
           Would you like me to schedule an urgent appointment with Dr. Müller, or would you prefer to speak with a support specialist now?`;
-      } else if (message.toLowerCase().includes("appointment")) {
-        responseContent = "I can help you schedule an appointment. When would you like to visit your doctor?";
-      } else if (message.toLowerCase().includes("medication") || message.toLowerCase().includes("prescription")) {
-        responseContent = "I can check your current prescriptions. You currently have 2 active prescriptions: Gabapentin for pain management and Physical Therapy.";
+      } else if (userMessageLower.includes("appointment")) {
+        responseContent = "I can help you schedule an appointment. When would you like to visit your doctor? You can also go directly to the Appointments section from the sidebar to schedule one yourself.";
+      } else if (userMessageLower.includes("medication") || userMessageLower.includes("prescription")) {
+        responseContent = "I can check your current prescriptions. You currently have 2 active prescriptions: Gabapentin for pain management and Physical Therapy. You can view and manage your prescriptions in the Prescriptions section.";
+      } else if (userMessageLower.includes("suralis") || userMessageLower.includes("prosthetic") || userMessageLower.includes("device")) {
+        responseContent = `Your Suralis sensory feedback system is functioning normally. The last diagnostic showed:
+          • Battery: 87% 
+          • Sensor sensitivity: Optimal
+          • Connection quality: Good
+          
+          Your last calibration was 3 weeks ago. Would you like to schedule a calibration appointment?`;
+      } else if (userMessageLower.includes("support") || userMessageLower.includes("help")) {
+        responseContent = "For technical support with your Suralis system, you can create a support request in the Support section. For medical concerns, I recommend scheduling an appointment with Dr. Müller.";
+      } else if (userMessageLower.includes("settings") || userMessageLower.includes("profile")) {
+        responseContent = "You can update your personal information, contact details, and notification preferences in the Settings section. Is there something specific you'd like to change?";
+      } else if (userMessageLower.includes("health") || userMessageLower.includes("metrics") || userMessageLower.includes("progress")) {
+        responseContent = "Your health metrics are tracked in the Dashboard. Your mobility score has improved by 12% over the past month, and your phantom pain score has decreased from 7 to 4. Great progress!";
       } else {
-        responseContent = "I understand you need assistance. Would you like to schedule an appointment with your doctor or connect to our support team?";
+        responseContent = "I understand you need assistance. Would you like information about your Suralis system, schedule an appointment with your doctor, or connect to our support team?";
       }
 
       const assistantResponse: Message = {
@@ -117,27 +132,95 @@ export default function VirtualAssistant() {
               </div>
             ))}
 
-            {message.toLowerCase().includes("discomfort") && (
-              <div className="mt-4 flex space-x-2">
-                <Button
-                  className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                  onClick={() => {
-                    setMessage("I'd like to schedule an appointment");
-                    handleSendMessage();
-                  }}
-                >
-                  Schedule Appointment
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-neutral-300 shadow-sm text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                  onClick={() => {
-                    setMessage("I'd like to speak with support");
-                    handleSendMessage();
-                  }}
-                >
-                  Connect to Support
-                </Button>
+            {/* Dynamic quick response buttons based on conversation context */}
+            {messages.length > 0 && messages[messages.length - 1].sender === "assistant" && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {/* Pain/Discomfort responses */}
+                {messages[messages.length - 1].content.includes("discomfort") && (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setMessage("I'd like to schedule an urgent appointment");
+                        handleSendMessage();
+                      }}
+                    >
+                      Schedule Urgent Appointment
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMessage("I'd like to speak with support");
+                        handleSendMessage();
+                      }}
+                    >
+                      Connect to Support
+                    </Button>
+                  </>
+                )}
+                
+                {/* Suralis/Device responses */}
+                {messages[messages.length - 1].content.includes("Suralis sensory feedback system") && (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setMessage("Yes, I'd like to schedule a calibration appointment");
+                        handleSendMessage();
+                      }}
+                    >
+                      Schedule Calibration
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMessage("Can you explain what the sensor sensitivity means?");
+                        handleSendMessage();
+                      }}
+                    >
+                      Ask About Sensor
+                    </Button>
+                  </>
+                )}
+                
+                {/* General quick responses always available */}
+                {!messages[messages.length - 1].content.includes("discomfort") && 
+                 !messages[messages.length - 1].content.includes("Suralis sensory feedback system") && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setMessage("Tell me about my health progress");
+                        handleSendMessage();
+                      }}
+                    >
+                      Health Progress
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setMessage("I need technical support");
+                        handleSendMessage();
+                      }}
+                    >
+                      Technical Support
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setMessage("Check my prescriptions");
+                        handleSendMessage();
+                      }}
+                    >
+                      My Prescriptions
+                    </Button>
+                  </>
+                )}
               </div>
             )}
           </div>
