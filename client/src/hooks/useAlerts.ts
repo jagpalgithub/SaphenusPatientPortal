@@ -41,7 +41,7 @@ export function useAlerts() {
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to dismiss alert",
+        description: "Failed to mark alert as read",
         variant: "destructive",
       });
     }
@@ -68,7 +68,7 @@ export function useAlerts() {
     }
   });
 
-  // Mark an alert as read (dismiss)
+  // Mark an alert as read
   const dismissAlert = async (alertId: number) => {
     return dismissMutation.mutateAsync(alertId);
   };
