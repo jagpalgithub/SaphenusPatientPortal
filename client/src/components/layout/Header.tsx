@@ -5,6 +5,7 @@ import { Bell, Menu, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAlerts } from "@/hooks/useAlerts";
+import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -18,14 +19,14 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const hasUnreadAlerts = unreadAlerts && unreadAlerts.length > 0;
 
   return (
-    <header className="bg-white shadow-sm z-10">
-      <div className="flex items-center justify-between h-16 px-4 border-b border-neutral-200">
+    <header className="bg-white dark:bg-gray-900 shadow-sm z-10">
+      <div className="flex items-center justify-between h-16 px-4 border-b border-neutral-200 dark:border-gray-700">
         <div className="flex items-center md:hidden">
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleSidebar}
-            className="inline-flex items-center justify-center p-2 rounded-md text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+            className="inline-flex items-center justify-center p-2 rounded-md text-neutral-500 dark:text-gray-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
           >
             <Menu className="h-6 w-6" />
           </Button>
@@ -41,12 +42,12 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-neutral-400" />
+                <Search className="h-5 w-5 text-neutral-400 dark:text-gray-500" />
               </div>
               <Input
                 id="search"
                 name="search"
-                className="block w-full pl-10 pr-3 py-2 border border-neutral-200 rounded-md leading-5 bg-neutral-50 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-neutral-200 dark:border-gray-700 rounded-md leading-5 bg-neutral-50 dark:bg-gray-800 placeholder-neutral-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
                 placeholder="Search"
                 type="search"
                 value={searchQuery}
@@ -57,10 +58,14 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
         </div>
 
         <div className="flex items-center">
+          {/* Theme Switcher */}
+          <ThemeSwitcher />
+          
+          {/* Notifications */}
           <Button
             variant="ghost"
             size="icon"
-            className="relative flex-shrink-0 p-1 mr-3 text-neutral-500 rounded-full hover:text-neutral-900 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            className="relative flex-shrink-0 p-1 mx-3 text-neutral-500 dark:text-gray-400 rounded-full hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             <span className="sr-only">View notifications</span>
             <Bell className="h-6 w-6" />

@@ -15,6 +15,7 @@ import SupportPage from "@/pages/SupportPage";
 // Using our new auth system without AuthProvider
 import { useAuth } from "@/hooks/useAuth";
 import { Suspense, useEffect } from "react";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 function Router() {
   return (
@@ -43,12 +44,14 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthInitializer>
-        <Layout>
-          <Router />
-        </Layout>
-        <Toaster />
-      </AuthInitializer>
+      <ThemeProvider>
+        <AuthInitializer>
+          <Layout>
+            <Router />
+          </Layout>
+          <Toaster />
+        </AuthInitializer>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

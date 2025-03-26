@@ -137,6 +137,49 @@ const setupUserRoutes = (app: Express) => {
       res.status(500).json({ message: 'Failed to get profile', error });
     }
   });
+  
+  // Update user data 
+  app.patch('/api/users/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = parseInt(id);
+      
+      // Get existing user
+      const existingUser = await storage.getUser(userId);
+      if (!existingUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // For security, ensure a user can only modify their own data
+      const currentUserId = (req.user as any).id;
+      if (userId !== currentUserId && (req.user as any).role !== 'admin') {
+        return res.status(403).json({ message: 'Not authorized to update this user' });
+      }
+      
+      console.log('Updating user data:', req.body);
+      
+      // Update the user object with the provided fields
+      const updatedUser = {
+        ...existingUser,
+        ...req.body
+      };
+      
+      // Ensure we don't accidentally change sensitive fields like role or username
+      updatedUser.role = existingUser.role;
+      updatedUser.username = existingUser.username;
+      
+      // Save and return the updated user
+      // Since we don't have an updateUser method, we'll use a workaround to update just the user object
+      // This is less than ideal but works for demo purposes
+      storage.users.set(userId, updatedUser);
+      
+      console.log('User updated successfully:', updatedUser);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      res.status(500).json({ message: 'Failed to update user', error });
+    }
+  });
 
   // Create a new user and associated profile
   app.post('/api/users', async (req, res) => {

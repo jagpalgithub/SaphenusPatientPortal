@@ -29,8 +29,8 @@ const NavItem = ({ href, icon, label, active, badge }: NavItemProps) => {
         className={cn(
           "flex items-center px-2 py-2 text-sm font-medium rounded-md",
           active
-            ? "bg-primary text-white"
-            : "text-neutral-700 hover:bg-neutral-100"
+            ? "bg-primary text-white dark:text-white"
+            : "text-neutral-700 hover:bg-neutral-100 dark:text-gray-300 dark:hover:bg-gray-800"
         )}
       >
         <span className="mr-3 h-5 w-5">{icon}</span>
@@ -52,23 +52,23 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:flex md:flex-shrink-0">
-      <div className="flex flex-col w-64 border-r border-neutral-200 bg-white">
+      <div className="flex flex-col w-64 border-r border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         {/* Logo */}
-        <div className="flex items-center justify-center h-16 px-4 border-b border-neutral-200 bg-primary">
-          <span className="text-lg font-semibold text-white">Saphenus PMS</span>
+        <div className="flex items-center justify-center h-16 px-4 border-b border-neutral-200 dark:border-gray-700 bg-primary dark:bg-primary">
+          <span className="text-lg font-semibold text-white dark:text-white">Saphenus PMS</span>
         </div>
 
         {/* User Profile */}
-        <div className="flex items-center px-4 py-3 border-b border-neutral-200">
+        <div className="flex items-center px-4 py-3 border-b border-neutral-200 dark:border-gray-700">
           <Avatar className="h-10 w-10">
             <AvatarImage src={user?.profileImage} alt={`${user?.firstName} ${user?.lastName}`} />
             <AvatarFallback>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="ml-3">
-            <p className="text-sm font-medium text-neutral-800">
+            <p className="text-sm font-medium text-neutral-800 dark:text-gray-200">
               {user?.firstName} {user?.lastName}
             </p>
-            <p className="text-xs font-medium text-neutral-500">
+            <p className="text-xs font-medium text-neutral-500 dark:text-gray-400">
               {user?.role === "patient" ? "Patient" : "Doctor"}
             </p>
           </div>
