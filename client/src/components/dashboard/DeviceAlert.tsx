@@ -12,15 +12,15 @@ interface DeviceAlertProps {
 
 export default function DeviceAlert({ alert, onDismiss, onSchedule }: DeviceAlertProps) {
   return (
-    <Alert className="mb-6 rounded-md bg-accent-light dark:bg-accent/10 bg-opacity-10 p-4 border-l-4 border-accent relative">
+    <Alert className="mb-6 rounded-md bg-blue-50 dark:bg-blue-900/20 p-4 border-l-4 border-primary relative">
       <div className="flex">
         <div className="flex-shrink-0">
-          <AlertCircle className="h-6 w-6 text-accent dark:text-accent" />
+          <AlertCircle className="h-6 w-6 text-primary dark:text-primary" />
         </div>
         <div className="ml-3 flex-1">
-          <AlertTitle className="text-base font-medium text-accent dark:text-accent flex items-center justify-between">
+          <AlertTitle className="text-base font-medium text-primary dark:text-primary flex items-center justify-between">
             <span>Device Alert: {alert.alertType}</span>
-            <span className="text-xs bg-accent text-white px-2 py-1 rounded-full">
+            <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">
               {alert.severity}
             </span>
           </AlertTitle>
@@ -36,7 +36,7 @@ export default function DeviceAlert({ alert, onDismiss, onSchedule }: DeviceAler
                 onClick={() => onSchedule(alert.id)}
                 variant="default"
                 size="sm"
-                className="bg-accent hover:bg-accent/90 text-white dark:text-white flex items-center gap-1"
+                className="bg-primary hover:bg-primary/90 text-white flex items-center gap-1"
               >
                 <Bell className="h-4 w-4" />
                 Schedule Now
@@ -46,7 +46,7 @@ export default function DeviceAlert({ alert, onDismiss, onSchedule }: DeviceAler
                 <Button
                   variant="outline"
                   size="sm"
-                  className="border-accent text-accent dark:text-accent hover:bg-accent/10 dark:hover:bg-accent/20 dark:border-accent flex items-center gap-1"
+                  className="border-primary text-primary hover:bg-primary/10 dark:hover:bg-primary/20 dark:border-primary flex items-center gap-1"
                 >
                   <ArrowRight className="h-4 w-4" />
                   Go to Device Alerts
