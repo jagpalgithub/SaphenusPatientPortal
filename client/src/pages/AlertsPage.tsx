@@ -62,17 +62,17 @@ export default function AlertsPage() {
     }
   };
 
-  // Handle dismissing an alert
+  // Handle marking an alert as read
   const handleDismissAlert = (alertId: number) => {
     dismissAlert(alertId).then(() => {
       toast({
-        title: "Alert dismissed",
+        title: "Alert read",
         description: "The alert has been marked as read",
       });
     }).catch(() => {
       toast({
         title: "Error",
-        description: "Failed to dismiss alert",
+        description: "Failed to mark alert as read",
         variant: "destructive",
       });
     });
@@ -218,7 +218,12 @@ export default function AlertsPage() {
                               onClick={() => handleDismissAlert(alert.id)}
                               disabled={alert.isRead}
                             >
-                              {alert.isRead ? "Dismissed" : "Dismiss"}
+                              {alert.isRead ? (
+                                <span className="flex items-center">
+                                  <Check className="h-4 w-4 mr-1 text-green-500" />
+                                  Read
+                                </span>
+                              ) : "Mark as Read"}
                             </Button>
                             <Button
                               variant="outline"

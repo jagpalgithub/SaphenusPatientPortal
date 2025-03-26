@@ -28,6 +28,7 @@ export default function Dashboard() {
   const { prescriptions, isLoading: isLoadingPrescriptions } = usePrescriptions();
   const { alerts, dismissAlert, resolveAlert, isLoading: isLoadingAlerts } = useAlerts();
   const { toast } = useToast();
+  const [dismissingAlerts, setDismissingAlerts] = useState<{[key: number]: boolean}>({});
 
   const handleNewAppointment = () => {
     // This function is kept for the AppointmentList component's prop
@@ -46,18 +47,33 @@ export default function Dashboard() {
   };
 
   const handleDismissAlert = (id: number) => {
+    // Set this specific alert to dismissing state
+    setDismissingAlerts(prev => ({ ...prev, [id]: true }));
+    
     dismissAlert(id)
       .then(() => {
         toast({
-          title: "Alert dismissed",
+          title: "Alert read",
           description: "The alert has been marked as read",
+        });
+        // Clear dismissing state for this alert
+        setDismissingAlerts(prev => {
+          const newState = { ...prev };
+          delete newState[id];
+          return newState;
         });
       })
       .catch(() => {
         toast({
           title: "Error",
-          description: "Failed to dismiss alert",
+          description: "Failed to mark alert as read",
           variant: "destructive",
+        });
+        // Clear dismissing state for this alert
+        setDismissingAlerts(prev => {
+          const newState = { ...prev };
+          delete newState[id];
+          return newState;
         });
       });
   };
@@ -117,6 +133,7 @@ export default function Dashboard() {
               alert={alert}
               onDismiss={handleDismissAlert}
               onSchedule={handleScheduleFromAlert}
+              isDismissing={!!dismissingAlerts[alert.id]}
             />
           ))}
         </div>
