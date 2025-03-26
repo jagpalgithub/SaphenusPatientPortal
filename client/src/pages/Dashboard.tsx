@@ -174,10 +174,20 @@ export default function Dashboard() {
       </div>
       
       {/* Enhanced Health Scores Visualization */}
-      {metrics && metrics.length > 0 && (
-        <div className="grid grid-cols-1 gap-6 mb-6">
-          <HealthScoresTrendChart healthMetrics={metrics} />
-          <HealthScoresSpiderChart healthMetrics={metrics} />
+      {metrics && metrics.length > 0 ? (
+        <>
+          {console.log("Rendering health score charts with metrics:", metrics)}
+          <div className="grid grid-cols-1 gap-6 mb-6">
+            <HealthScoresTrendChart healthMetrics={metrics} />
+            <HealthScoresSpiderChart healthMetrics={metrics} />
+          </div>
+        </>
+      ) : (
+        <div className="my-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+          <p className="text-blue-700">Health metrics data is not available.</p>
+          <p className="text-sm text-blue-600 mt-1">
+            {metrics ? "Data array is empty." : "Metrics data is undefined."} 
+          </p>
         </div>
       )}
 

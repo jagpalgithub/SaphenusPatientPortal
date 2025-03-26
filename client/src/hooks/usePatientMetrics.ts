@@ -18,6 +18,10 @@ export function usePatientMetrics() {
     queryKey: ['/api/health-metrics/patient', profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    select: (data) => {
+      console.log('Received health metrics data:', data);
+      return data;
+    }
   });
 
   // Get latest health metrics
