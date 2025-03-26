@@ -45,7 +45,7 @@ export default function HealthMetricCard({
   };
 
   return (
-    <Card className="bg-white overflow-hidden shadow rounded-lg">
+    <Card className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
       <CardContent className="p-0">
         <div className="px-4 py-5 sm:p-6">
           <div className="flex items-center">
@@ -54,10 +54,10 @@ export default function HealthMetricCard({
             </div>
             <div className="ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-neutral-500 truncate">{title}</dt>
+                <dt className="text-sm font-medium text-neutral-500 dark:text-gray-300 truncate">{title}</dt>
                 <dd>
                   <div className="flex items-baseline">
-                    <div className="text-2xl font-semibold text-neutral-900">{value}</div>
+                    <div className="text-2xl font-semibold text-neutral-900 dark:text-white">{value}</div>
                     {change !== undefined && (
                       <div className={`ml-2 flex items-baseline text-sm font-semibold ${getChangeColor()}`}>
                         {renderChangeIcon()}
@@ -75,9 +75,9 @@ export default function HealthMetricCard({
         </div>
       </CardContent>
       {link && (
-        <CardFooter className="bg-neutral-50 px-4 py-4 sm:px-6">
+        <CardFooter className="bg-neutral-50 dark:bg-gray-900 px-4 py-4 sm:px-6">
           <div className="text-sm">
-            <a href={link} className="font-medium text-primary hover:text-primary-light">
+            <a href={link} className="font-medium text-primary hover:text-primary-light dark:text-primary-light dark:hover:text-primary">
               {linkText}
             </a>
           </div>

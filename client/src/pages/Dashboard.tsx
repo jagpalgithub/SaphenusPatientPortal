@@ -63,8 +63,8 @@ export default function Dashboard() {
       {/* Dashboard Header */}
       <div className="md:flex md:items-center md:justify-between mb-6">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold leading-tight text-neutral-900">Patient Dashboard</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="text-2xl font-bold leading-tight text-neutral-900 dark:text-white">Patient Dashboard</h1>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-gray-300">
             Welcome back, {user?.firstName}. Here's your health overview.
           </p>
         </div>
@@ -72,15 +72,15 @@ export default function Dashboard() {
           <Link href="/appointments">
             <Button
               variant="outline"
-              className="inline-flex items-center px-3 py-2 border border-neutral-300 shadow-sm text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-gray-700 shadow-sm text-sm font-medium rounded-md text-neutral-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-neutral-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-900"
             >
-              <Plus className="-ml-1 mr-2 h-5 w-5 text-neutral-500" />
+              <Plus className="-ml-1 mr-2 h-5 w-5 text-neutral-500 dark:text-gray-300" />
               New Appointment
             </Button>
           </Link>
           <Link href="/support">
             <Button
-              className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-900"
             >
               <HelpCircle className="-ml-1 mr-2 h-5 w-5" />
               Ask for Support
@@ -190,9 +190,9 @@ export default function Dashboard() {
           </div>
         </>
       ) : (
-        <div className="my-4 p-4 bg-blue-50 rounded-md border border-blue-200">
-          <p className="text-blue-700">Health metrics data is not available.</p>
-          <p className="text-sm text-blue-600 mt-1">
+        <div className="my-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-800">
+          <p className="text-blue-700 dark:text-blue-300">Health metrics data is not available.</p>
+          <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
             {metrics ? "Data array is empty." : "Metrics data is undefined."} 
           </p>
         </div>
