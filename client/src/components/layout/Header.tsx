@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useAlerts } from "@/hooks/useAlerts";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 import SearchResults from "./SearchResults";
+import NotificationsDropdown from "./NotificationsDropdown";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -17,7 +18,9 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const { unreadAlerts } = useAlerts();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const notificationsContainerRef = useRef<HTMLDivElement>(null);
   
   const hasUnreadAlerts = Array.isArray(unreadAlerts) && unreadAlerts.length > 0;
 
@@ -94,17 +97,27 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
           <ThemeSwitcher />
           
           {/* Notifications */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative flex-shrink-0 p-1 mx-3 text-neutral-500 dark:text-gray-400 rounded-full hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            <span className="sr-only">View notifications</span>
-            <Bell className="h-6 w-6" />
-            {hasUnreadAlerts && (
-              <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-accent transform translate-x-1/2 -translate-y-1/2"></span>
-            )}
-          </Button>
+          <div className="relative" ref={notificationsContainerRef}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative flex-shrink-0 p-1 mx-3 text-neutral-500 dark:text-gray-400 rounded-full hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              onClick={() => setShowNotifications(!showNotifications)}
+              aria-expanded={showNotifications}
+            >
+              <span className="sr-only">View notifications</span>
+              <Bell className="h-6 w-6" />
+              {hasUnreadAlerts && (
+                <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-accent transform translate-x-1/2 -translate-y-1/2"></span>
+              )}
+            </Button>
+            
+            {/* Notifications Dropdown */}
+            <NotificationsDropdown 
+              isOpen={showNotifications} 
+              onClose={() => setShowNotifications(false)} 
+            />
+          </div>
 
           {/* Profile dropdown */}
           <div className="ml-3 relative hidden md:block">
