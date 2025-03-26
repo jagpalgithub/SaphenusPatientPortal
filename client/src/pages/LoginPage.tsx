@@ -49,12 +49,16 @@ export default function LoginPage() {
     try {
       const user = await login(values.username, values.password);
       if (user) {
-        // Ensure we navigate to dashboard only after login is successful
-        navigate("/");
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully logged in to your patient portal.",
-        });
+        // Add a small delay to ensure auth state is updated before navigation
+        setTimeout(() => {
+          // Force navigation to dashboard by using window.location
+          // This ensures a complete page transition
+          window.location.href = "/";
+          toast({
+            title: "Welcome back!",
+            description: "You've successfully logged in to your patient portal.",
+          });
+        }, 100);
       } else {
         throw new Error("Login failed");
       }
@@ -65,9 +69,10 @@ export default function LoginPage() {
         description: "Invalid username or password. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsLoggingIn(false);
     }
+    // Note: Not calling setIsLoggingIn(false) in the success case
+    // because we're redirecting the page anyway
   };
 
   return (
