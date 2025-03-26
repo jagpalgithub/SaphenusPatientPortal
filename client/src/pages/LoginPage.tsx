@@ -72,8 +72,8 @@ export default function LoginPage() {
       
       console.log("Login successful, redirecting to dashboard...");
       
-      // Force a hard browser redirect to dashboard
-      window.location.href = '/';
+      // Force a hard page reload to reset all state and start fresh
+      window.location.replace('/');
     } catch (error) {
       console.error("Login error:", error);
       toast({

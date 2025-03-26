@@ -60,9 +60,18 @@ const configureAuth = (app: Express) => {
     }
   });
 
-  // Login route
-  app.post('/api/auth/login', passport.authenticate('local'), (req, res) => {
-    res.json(req.user);
+  // Login route with proper session handling
+  app.post('/api/auth/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+      if (err) { return next(err); }
+      if (!user) { 
+        return res.status(401).json({ message: 'Invalid credentials' }); 
+      }
+      req.login(user, (err) => {
+        if (err) { return next(err); }
+        return res.json(user);
+      });
+    })(req, res, next);
   });
 
   // Logout route
