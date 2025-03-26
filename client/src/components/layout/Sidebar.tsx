@@ -285,12 +285,7 @@ export function MobileSidebar({ onNavItemClick }: { onNavItemClick: () => void }
 export default function Sidebar() {
   return (
     <>
-      {/* Mobile sidebar - hidden by default, shown by the Layout component */}
-      <aside className="md:hidden">
-        <BaseSidebar />
-      </aside>
-      
-      {/* Desktop sidebar - always visible on desktop */}
+      {/* Desktop sidebar only - always visible on desktop, hidden on mobile */}
       <aside className="hidden md:flex md:flex-shrink-0">
         <BaseSidebar />
       </aside>
