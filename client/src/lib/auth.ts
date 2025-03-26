@@ -8,12 +8,34 @@ export interface AuthState {
   error: Error | null;
 }
 
-// Mock login function for development purposes
+// Login function
 // In a real app, this would authenticate with the server
 export async function login(username: string, password: string) {
   try {
     const user = await authApi.login(username, password);
-    return user;
+    
+    // Normalize the user object to ensure it has expected properties
+    const normalizedUser = {
+      // Ensure required fields exist with proper names
+      id: user.id || user.userId || 1,
+      username: user.username || '',
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      role: user.role || 'patient',
+      password: '', // Don't store the actual password
+      profileImage: user.profileImage || null
+    };
+    
+    console.log("Normalized user from login:", normalizedUser);
+    
+    // Store auth info in localStorage for persistence
+    localStorage.setItem('saphenus_auth', JSON.stringify({
+      ...normalizedUser,
+      isAuthenticated: true,
+    }));
+    
+    return normalizedUser;
   } catch (error) {
     throw new Error("Failed to login");
   }

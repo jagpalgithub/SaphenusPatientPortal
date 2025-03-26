@@ -61,8 +61,25 @@ export function useAuth() {
     const localUser = checkLocalAuth();
     if (localUser) {
       console.log("Found authenticated user in localStorage:", localUser);
+      
+      // Normalize the user object to ensure it has expected properties
+      // This is crucial for various components that expect specific fields
+      const normalizedUser = {
+        // Ensure required fields exist with proper names
+        id: localUser.id || localUser.userId || 1,
+        username: localUser.username || '',
+        firstName: localUser.firstName || '',
+        lastName: localUser.lastName || '',
+        email: localUser.email || '',
+        role: localUser.role || 'patient',
+        password: '', // Don't store the actual password
+        profileImage: localUser.profileImage || null
+      };
+      
+      console.log("Normalized user object:", normalizedUser);
+      
       updateAuthState({ 
-        user: localUser, 
+        user: normalizedUser,
         isAuthenticated: true,
         isLoading: false 
       });
@@ -74,15 +91,15 @@ export function useAuth() {
       });
       
       // Fetch other essential data needed for the dashboard
-      if (localUser.role === 'patient') {
-        const patientId = localUser.userId || 1; // Use default patient ID if not present
+      if (normalizedUser.role === 'patient') {
+        const patientId = normalizedUser.id || 1;
         queryClient.fetchQuery({ queryKey: [`/api/health-metrics/patient/${patientId}`] });
         queryClient.fetchQuery({ queryKey: [`/api/appointments/patient/${patientId}`] });
         queryClient.fetchQuery({ queryKey: [`/api/prescriptions/patient/${patientId}`] });
         queryClient.fetchQuery({ queryKey: [`/api/device-alerts/patient/${patientId}`] });
         queryClient.fetchQuery({ queryKey: [`/api/updates/patient/${patientId}`] });
         queryClient.fetchQuery({ queryKey: [`/api/support-requests/patient/${patientId}`] });
-        queryClient.fetchQuery({ queryKey: [`/api/messages/user/${localUser.userId || 1}`] });
+        queryClient.fetchQuery({ queryKey: [`/api/messages/user/${patientId}`] });
         queryClient.fetchQuery({ queryKey: ['/api/doctors'] });
       }
     }
