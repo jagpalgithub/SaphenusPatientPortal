@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function MessagesPage() {
   const { user } = useAuth();
   const { doctors, isLoading: isLoadingDoctors } = useMedicalStaff();
-  const { messages, sendMessage, markAsRead, isLoading } = useMessages();
+  const { messages, sendMessage, markAsRead, isLoading, isSending } = useMessages();
   const [selectedConversation, setSelectedConversation] = useState<number | null>(null);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -258,9 +258,13 @@ export default function MessagesPage() {
                     type="submit"
                     size="icon"
                     onClick={handleSendMessage}
-                    disabled={!messageText.trim()}
+                    disabled={!messageText.trim() || isSending}
                   >
-                    <Send className="h-4 w-4" />
+                    {isSending ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent border-white" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </CardFooter>

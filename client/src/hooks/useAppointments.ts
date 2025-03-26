@@ -34,9 +34,23 @@ export function useAppointments() {
   const createMutation = useMutation({
     mutationFn: async (appointment: any) => {
       try {
+        console.log("Appointment data before API call:", appointment);
+        
+        // Make sure dateTime is properly formatted
+        const formattedAppointment = {
+          ...appointment,
+          dateTime: appointment.dateTime instanceof Date 
+            ? appointment.dateTime.toISOString() 
+            : appointment.dateTime
+        };
+        
+        console.log("Formatted appointment data:", formattedAppointment);
+        
         // First try to create the appointment - date formatting handled in API
-        return await appointmentsApi.createAppointment(appointment);
+        return await appointmentsApi.createAppointment(formattedAppointment);
       } catch (err) {
+        console.error("Error in appointment creation:", err);
+        
         // If unauthorized, try to login again
         if (err instanceof Error && err.toString().includes("401")) {
           if (user) {
