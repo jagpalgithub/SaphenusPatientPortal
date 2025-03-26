@@ -27,8 +27,9 @@ export default function Dashboard() {
   const { alerts, dismissAlert, resolveAlert, isLoading: isLoadingAlerts } = useAlerts();
 
   const handleNewAppointment = () => {
-    // This would typically open a modal or navigate to an appointment creation page
+    // Redirect to appointments page
     console.log("Create new appointment");
+    window.location.href = "/appointments";
   };
 
   const handleEditAppointment = (id: number) => {

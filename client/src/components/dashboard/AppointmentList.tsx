@@ -82,9 +82,13 @@ export default function AppointmentList({
         </ul>
       </CardContent>
       <CardFooter className="border-t border-neutral-200 px-4 py-4">
-        <a href="/appointments" className="text-sm font-medium text-primary hover:text-primary-light">
+        <Button 
+          variant="link" 
+          onClick={() => window.location.href = "/appointments"} 
+          className="text-sm font-medium text-primary hover:text-primary-light p-0"
+        >
           View all appointments
-        </a>
+        </Button>
       </CardFooter>
     </Card>
   );
