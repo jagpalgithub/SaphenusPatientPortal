@@ -79,7 +79,7 @@ interface SearchResultsProps {
 }
 
 export default function SearchResults({ query, isOpen, onClose }: SearchResultsProps) {
-  const [, setLocation] = useLocation();
+  const [, navigate] = useLocation();
   const [filteredPages, setFilteredPages] = useState(pages);
   const commandRef = useRef<HTMLDivElement>(null);
   
@@ -119,7 +119,7 @@ export default function SearchResults({ query, isOpen, onClose }: SearchResultsP
   
   // Navigate to selected page
   const handleSelect = (path: string) => {
-    setLocation(path);
+    navigate(path);
     onClose();
   };
   

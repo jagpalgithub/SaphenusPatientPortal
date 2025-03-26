@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { AlertTriangle, Info, Check, AlertCircle, Calendar } from "lucide-react";
 import { useAppointments } from "@/hooks/useAppointments";
 import { useToast } from "@/hooks/use-toast";
+import { DeviceAlert } from "@shared/schema";
 
 export default function AlertsPage() {
   const { user, profile } = useAuth();
@@ -18,20 +19,20 @@ export default function AlertsPage() {
   const { appointments, createAppointment } = useAppointments();
   const [activeTab, setActiveTab] = useState("all");
   const [resolutionNotes, setResolutionNotes] = useState("");
-  const [selectedAlert, setSelectedAlert] = useState<any>(null);
+  const [selectedAlert, setSelectedAlert] = useState<DeviceAlert | null>(null);
   const [isResolveDialogOpen, setIsResolveDialogOpen] = useState(false);
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Filter alerts based on active tab
-  const filteredAlerts = alerts
+  const filteredAlerts = (Array.isArray(alerts) && alerts.length > 0)
     ? activeTab === "all"
       ? alerts
       : activeTab === "unread"
-      ? alerts.filter(alert => !alert.isRead)
+      ? alerts.filter((alert: DeviceAlert) => !alert.isRead)
       : activeTab === "resolved"
-      ? alerts.filter(alert => alert.isResolved)
-      : alerts.filter(alert => !alert.isResolved)
+      ? alerts.filter((alert: DeviceAlert) => alert.isResolved)
+      : alerts.filter((alert: DeviceAlert) => !alert.isResolved)
     : [];
 
   // Get appropriate icon for alert type
@@ -100,7 +101,7 @@ export default function AlertsPage() {
   };
 
   // Open schedule dialog
-  const openScheduleDialog = (alert: any) => {
+  const openScheduleDialog = (alert: DeviceAlert) => {
     setSelectedAlert(alert);
     setIsScheduleDialogOpen(true);
   };
