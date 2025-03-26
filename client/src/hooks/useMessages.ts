@@ -22,12 +22,23 @@ export function useMessages() {
 
   // Create message mutation
   const createMutation = useMutation({
-    mutationFn: (message: InsertMessage) => 
-      messagesApi.createMessage(message),
+    mutationFn: (message: InsertMessage) => {
+      console.log('Sending message with data:', message);
+      // Ensure user ID is set correctly
+      if (!message.senderId && user?.id) {
+        message.senderId = user.id;
+      }
+      // Ensure timestamp is properly formatted
+      if (!message.timestamp) {
+        message.timestamp = new Date();
+      }
+      return messagesApi.createMessage(message);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/messages/user', user?.id] });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Failed to send message:', error);
       toast({
         title: "Error",
         description: "Failed to send message",

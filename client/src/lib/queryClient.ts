@@ -113,12 +113,12 @@ export const getQueryFn: <T>(options: {
           path.includes('doctors') ||
           path.includes('device-alerts') ||
           path.includes('prescriptions')) {
-        return ([] as any) as T;
+        return ([] as unknown) as T;
       } 
       // Single objects
       else {
         // For other endpoints, return empty object
-        return ({} as any) as T;
+        return ({} as unknown) as T;
       }
     }
 

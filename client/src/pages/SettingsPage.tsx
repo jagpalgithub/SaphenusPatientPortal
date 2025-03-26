@@ -34,7 +34,7 @@ export default function SettingsPage() {
   });
   
   const [deviceSettings, setDeviceSettings] = useState({
-    sensorSensitivity: latestMetrics?.sensorSensitivity || 75,
+    sensorSensitivity: latestMetrics ? latestMetrics.sensorSensitivity || 75 : 75,
     vibrationIntensity: 65,
     autoCalibration: true,
     notifyLowBattery: true,
@@ -57,24 +57,29 @@ export default function SettingsPage() {
   // Save profile changes
   const saveProfileChanges = async () => {
     try {
-      // Update user profile
-      if (user) {
+      // Update user profile - make sure we have an ID
+      if (user && user.id) {
+        console.log('Updating user with ID:', user.id);
         await updateUser({
-          ...user,
+          id: user.id,
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
         });
+      } else {
+        console.error('Cannot update user: missing user ID', user);
       }
       
       // Update patient profile
-      if (profile) {
+      if (profile && profile.id) {
+        console.log('Updating patient with ID:', profile.id);
         await updatePatient(profile.id, {
-          ...profile,
           phone: formData.phone,
           address: formData.address,
           emergencyContact: formData.emergencyContact,
         });
+      } else {
+        console.error('Cannot update patient: missing profile ID', profile);
       }
       
       setIsEditingProfile(false);
@@ -83,6 +88,7 @@ export default function SettingsPage() {
         description: "Your profile information has been updated successfully",
       });
     } catch (error) {
+      console.error('Profile update error:', error);
       toast({
         title: "Error",
         description: "Failed to update profile",
@@ -95,11 +101,13 @@ export default function SettingsPage() {
   const saveDeviceSettings = async () => {
     try {
       // Update sensor sensitivity in metrics
-      if (latestMetrics && profile) {
+      if (latestMetrics && profile && 'id' in latestMetrics) {
+        console.log('Updating metrics with ID:', latestMetrics.id);
         await updateMetrics(latestMetrics.id, {
-          ...latestMetrics,
           sensorSensitivity: deviceSettings.sensorSensitivity,
         });
+      } else {
+        console.error('Cannot update metrics: missing metrics data', latestMetrics);
       }
       
       setIsEditingDevice(false);
@@ -108,6 +116,7 @@ export default function SettingsPage() {
         description: "Your device settings have been updated successfully",
       });
     } catch (error) {
+      console.error('Device settings update error:', error);
       toast({
         title: "Error",
         description: "Failed to update device settings",
