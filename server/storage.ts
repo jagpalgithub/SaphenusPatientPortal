@@ -141,11 +141,11 @@ export class MemStorage implements IStorage {
     // Create users
     const adminUser: User = {
       id: this.currentIds.user++,
-      username: "admin",
-      password: "admin",
-      email: "admin@saphenus.com",
-      firstName: "Admin",
-      lastName: "User",
+      username: "Anna",
+      password: "loginpassword2$",
+      email: "anna@saphenus.com",
+      firstName: "Anna",
+      lastName: "Schmidt",
       role: "patient",
       profileImage: null
     };
@@ -484,9 +484,9 @@ export class MemStorage implements IStorage {
     
     const patientUser: User = {
       id: this.currentIds.user++,
-      username: "anna.wagner",
-      password: "password",
-      email: "anna@example.com",
+      username: "Anna",
+      password: "loginpassword2$",
+      email: "anna@saphenus.com",
       firstName: "Anna",
       lastName: "Wagner",
       role: "patient",

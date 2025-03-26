@@ -1,28 +1,43 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Bell, Menu, Search } from "lucide-react";
+import { Bell, Menu, Search, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAlerts } from "@/hooks/useAlerts";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 import SearchResults from "./SearchResults";
 import NotificationsDropdown from "./NotificationsDropdown";
+import { useLocation } from "wouter";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
 }
 
 export default function Header({ onToggleSidebar }: HeaderProps) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { unreadAlerts } = useAlerts();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const notificationsContainerRef = useRef<HTMLDivElement>(null);
+  const [, navigate] = useLocation();
   
   const hasUnreadAlerts = Array.isArray(unreadAlerts) && unreadAlerts.length > 0;
+  
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -118,6 +133,28 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
               onClose={() => setShowNotifications(false)} 
             />
           </div>
+
+          {/* Logout Button */}
+          <Button
+            variant="ghost"
+            className="hidden md:flex items-center text-sm gap-2 mx-2 text-neutral-700 dark:text-gray-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Logout</span>
+          </Button>
+
+          {/* Mobile Logout Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden p-1 text-neutral-700 dark:text-gray-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
 
           {/* Profile dropdown */}
           <div className="ml-3 relative hidden md:block">

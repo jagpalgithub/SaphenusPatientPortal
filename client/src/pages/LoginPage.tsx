@@ -33,25 +33,33 @@ export default function LoginPage() {
   const [, navigate] = useLocation();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Set up form with default values for admin
+  // Set up form with default values for Anna login
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "admin",
-      password: "admin",
+      username: "Anna",
+      password: "loginpassword2$",
     },
   });
 
   const onSubmit = async (values: LoginFormValues) => {
+    if (isLoggingIn) return; // Prevent double-clicks
+    
     setIsLoggingIn(true);
     try {
-      await login(values.username, values.password);
-      navigate("/");
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully logged in to your patient portal.",
-      });
+      const user = await login(values.username, values.password);
+      if (user) {
+        // Ensure we navigate to dashboard only after login is successful
+        navigate("/");
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully logged in to your patient portal.",
+        });
+      } else {
+        throw new Error("Login failed");
+      }
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         title: "Login failed",
         description: "Invalid username or password. Please try again.",
