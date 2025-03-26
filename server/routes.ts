@@ -97,7 +97,7 @@ const configureAuth = (app: Express) => {
 
 // Middleware to check if user is authenticated
 // Now with support for localStorage-based authentication as a fallback
-const isAuthenticated = (req: Request, res: Response, next: Function) => {
+const isAuthenticated = async (req: Request, res: Response, next: Function) => {
   // First check if user is authenticated via session
   if (req.isAuthenticated()) {
     return next();
@@ -105,14 +105,24 @@ const isAuthenticated = (req: Request, res: Response, next: Function) => {
   
   // Check for X-User-ID header which is set when using localStorage auth
   const userIdHeader = req.headers['x-user-id'];
+  const roleHeader = req.headers['x-user-role'];
+  
   if (userIdHeader) {
-    // We have a user ID from localStorage, let's use that
-    const userId = parseInt(userIdHeader as string, 10);
-    
-    // Attach a userId to the request for use in routes
-    (req as any).localAuthUserId = userId;
-    
-    return next();
+    try {
+      // We have a user ID from localStorage, let's use that
+      const userId = parseInt(userIdHeader as string, 10);
+      
+      // Get the actual user object and attach it to the request
+      const user = await storage.getUser(userId);
+      if (user) {
+        // Set the user on the request object so routes can access it
+        (req as any).user = user;
+        console.log("Using localStorage auth with user:", user);
+        return next();
+      }
+    } catch (err) {
+      console.error("Error while retrieving user for localStorage auth:", err);
+    }
   }
   
   // Not authenticated and no localStorage auth
@@ -177,14 +187,11 @@ const setupUserRoutes = (app: Express) => {
       let userId: number;
       let role: string;
       
-      if (req.isAuthenticated() && req.user) {
-        // User authenticated via session
+      // Since we set req.user in isAuthenticated for both session and localStorage auth,
+      // we can just check if it exists
+      if (req.user) {
         userId = (req.user as any).id;
         role = (req.user as any).role;
-      } else if ((req as any).localAuthUserId) {
-        // User authenticated via localStorage
-        userId = (req as any).localAuthUserId;
-        role = req.headers['x-user-role'] as string || 'patient';
       } else {
         return res.status(401).json({ message: 'Not authenticated' });
       }
