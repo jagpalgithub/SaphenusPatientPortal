@@ -60,17 +60,21 @@ export default function AppointmentsPage() {
   });
 
   // Split appointments into upcoming and past
-  const upcomingAppointments = appointments ? appointments.filter((appointment: any) => 
-    !isPast(new Date(appointment.dateTime))
-  ).sort((a: any, b: any) => 
-    new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
-  ) : [];
+  const upcomingAppointments = Array.isArray(appointments) 
+    ? appointments.filter((appointment) => 
+        !isPast(new Date(appointment.dateTime))
+      ).sort((a, b) => 
+        new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
+      ) 
+    : [];
   
-  const pastAppointments = appointments ? appointments.filter((appointment: any) => 
-    isPast(new Date(appointment.dateTime))
-  ).sort((a: any, b: any) => 
-    new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
-  ) : [];
+  const pastAppointments = Array.isArray(appointments) 
+    ? appointments.filter((appointment) => 
+        isPast(new Date(appointment.dateTime))
+      ).sort((a, b) => 
+        new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
+      ) 
+    : [];
 
   // Handle creating a new appointment
   const handleCreateAppointment = async (values: AppointmentFormValues) => {
@@ -376,11 +380,15 @@ export default function AppointmentsPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {doctors?.map((doctor) => (
-                          <SelectItem key={doctor.id} value={doctor.id.toString()}>
-                            Dr. {doctor.user.firstName} {doctor.user.lastName}
-                          </SelectItem>
-                        ))}
+                        {doctors && doctors.length > 0 ? (
+                          doctors.map((doctor) => (
+                            <SelectItem key={doctor.id} value={doctor.id.toString()}>
+                              Dr. {doctor.user.firstName} {doctor.user.lastName}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="" disabled>No doctors available</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -537,11 +545,15 @@ export default function AppointmentsPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {doctors?.map((doctor) => (
-                          <SelectItem key={doctor.id} value={doctor.id.toString()}>
-                            Dr. {doctor.user.firstName} {doctor.user.lastName}
-                          </SelectItem>
-                        ))}
+                        {doctors && doctors.length > 0 ? (
+                          doctors.map((doctor) => (
+                            <SelectItem key={doctor.id} value={doctor.id.toString()}>
+                              Dr. {doctor.user.firstName} {doctor.user.lastName}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="" disabled>No doctors available</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
