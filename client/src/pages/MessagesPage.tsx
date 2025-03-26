@@ -33,12 +33,14 @@ export default function MessagesPage() {
     return fullName.includes(searchQuery.toLowerCase());
   }) || [];
 
-  // Get current conversation messages
+  // Get current conversation messages - ensure we check for both ID field possibilities
+  const userId = user?.id || user?.userId;
+  
   const conversationMessages = selectedConversation
     ? messages?.filter(
         msg =>
-          (msg.senderId === user?.id && msg.receiverId === selectedConversation) ||
-          (msg.receiverId === user?.id && msg.senderId === selectedConversation)
+          (msg.senderId === userId && msg.receiverId === selectedConversation) ||
+          (msg.receiverId === userId && msg.senderId === selectedConversation)
       )
     : [];
 
@@ -52,16 +54,17 @@ export default function MessagesPage() {
     groupedMessages[date].push(message);
   });
 
-  // Mark unread messages as read
+  // Mark unread messages as read when viewing conversation
   useEffect(() => {
     if (selectedConversation && conversationMessages) {
       conversationMessages.forEach(message => {
-        if (message.receiverId === user?.id && !message.isRead) {
+        if (message.receiverId === userId && !message.isRead) {
+          console.log(`Marking message ${message.id} as read`);
           markAsRead(message.id);
         }
       });
     }
-  }, [selectedConversation, conversationMessages, user?.id, markAsRead]);
+  }, [selectedConversation, conversationMessages, userId, markAsRead]);
 
   // Send a message
   const handleSendMessage = () => {
@@ -83,8 +86,9 @@ export default function MessagesPage() {
     console.log("Attempting to send message to recipient ID:", selectedConversation);
     console.log("Current user object:", user);
     
-    // Get the sender ID from the user object
-    const senderId = user.id;
+    // Get the sender ID from the user object - ensure we have a valid ID
+    // This improved logic checks both possible ID field names for compatibility
+    const senderId = user.id || user.userId;
     
     if (!senderId) {
       console.error("Cannot send message: no valid sender ID found in user object", user);
@@ -95,6 +99,9 @@ export default function MessagesPage() {
       });
       return;
     }
+    
+    // Log the final resolved sender ID for debugging
+    console.log("Using sender ID for message:", senderId);
 
     sendMessage({
       senderId: senderId,
@@ -121,8 +128,9 @@ export default function MessagesPage() {
 
   // Get unread message count for a conversation
   const getUnreadCount = (receiverId: number) => {
+    const userId = user?.id || user?.userId;
     return messages?.filter(
-      msg => msg.senderId === receiverId && msg.receiverId === user?.id && !msg.isRead
+      msg => msg.senderId === receiverId && msg.receiverId === userId && !msg.isRead
     ).length || 0;
   };
 
@@ -249,19 +257,19 @@ export default function MessagesPage() {
                             <div
                               key={message.id}
                               className={`flex ${
-                                message.senderId === user?.id ? "justify-end" : "justify-start"
+                                message.senderId === userId ? "justify-end" : "justify-start"
                               }`}
                             >
                               <div
                                 className={`max-w-[70%] px-4 py-2 rounded-lg ${
-                                  message.senderId === user?.id
+                                  message.senderId === userId
                                     ? "bg-primary text-white"
                                     : "bg-neutral-100 text-neutral-800"
                                 }`}
                               >
                                 <p className="text-sm">{message.content}</p>
                                 <p className={`text-xs mt-1 ${
-                                  message.senderId === user?.id
+                                  message.senderId === userId
                                     ? "text-white text-opacity-70"
                                     : "text-neutral-500"
                                 }`}>
