@@ -85,6 +85,21 @@ export default function TimelinePage() {
         });
       });
     }
+    
+    // Add prescriptions
+    if (prescriptions) {
+      prescriptions.forEach((prescription) => {
+        items.push({
+          id: prescription.id,
+          date: new Date(prescription.datePrescribed),
+          type: "prescription_update",
+          title: `Prescription: ${prescription.medication}`,
+          description: `${prescription.dosage} - ${prescription.frequency}. ${prescription.instructions}`,
+          source: `Dr. ${prescription.doctor.firstName} ${prescription.doctor.lastName}`,
+          icon: <FileText className="h-5 w-5 text-white" />,
+        });
+      });
+    }
 
     // Add alerts
     if (alerts) {
