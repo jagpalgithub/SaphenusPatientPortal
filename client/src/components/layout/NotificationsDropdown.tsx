@@ -79,15 +79,16 @@ export default function NotificationsDropdown({ isOpen, onClose }: Notifications
       <div className="p-4 border-b border-neutral-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium">Notifications</h3>
-          <button 
-            className="text-xs text-primary hover:underline cursor-pointer bg-transparent border-0"
-            onClick={() => {
-              onClose();
-              window.location.href = "/alerts";
-            }}
-          >
-            View all
-          </button>
+          <Link href="/alerts">
+            <Button 
+              variant="link"
+              size="sm" 
+              className="text-xs text-primary hover:underline cursor-pointer bg-transparent border-0 h-auto p-0"
+              onClick={() => onClose()}
+            >
+              View all
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -137,7 +138,7 @@ export default function NotificationsDropdown({ isOpen, onClose }: Notifications
                           className="h-7 text-xs"
                           onClick={() => {
                             onClose();
-                            window.location.href = "/alerts";
+                            window.location.pathname = "/alerts";
                           }}
                         >
                           View Details
