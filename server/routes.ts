@@ -173,8 +173,23 @@ const setupUserRoutes = (app: Express) => {
   // Get current user's patient or medical staff record
   app.get('/api/users/profile', isAuthenticated, async (req, res) => {
     try {
-      const userId = (req.user as any).id;
-      const role = (req.user as any).role;
+      // Get user ID from either session or localStorage headers
+      let userId: number;
+      let role: string;
+      
+      if (req.isAuthenticated() && req.user) {
+        // User authenticated via session
+        userId = (req.user as any).id;
+        role = (req.user as any).role;
+      } else if ((req as any).localAuthUserId) {
+        // User authenticated via localStorage
+        userId = (req as any).localAuthUserId;
+        role = req.headers['x-user-role'] as string || 'patient';
+      } else {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+      
+      console.log('Getting profile for user ID:', userId, 'with role:', role);
       
       if (role === 'patient') {
         const patient = await storage.getPatientByUserId(userId);
@@ -186,6 +201,7 @@ const setupUserRoutes = (app: Express) => {
         res.status(400).json({ message: 'Unknown role' });
       }
     } catch (error) {
+      console.error('Failed to get profile:', error);
       res.status(500).json({ message: 'Failed to get profile', error });
     }
   });

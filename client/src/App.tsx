@@ -1,6 +1,6 @@
 import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Layout from "@/components/layout/Layout";
@@ -23,7 +23,6 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 function ProtectedRoute({ component: Component, ...rest }: { component: React.ComponentType<any>, path?: string }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [, navigate] = useLocation();
-  const queryClient = useQueryClient();
   
   // Use a single effect for redirection and data fetching
   useEffect(() => {
@@ -48,7 +47,7 @@ function ProtectedRoute({ component: Component, ...rest }: { component: React.Co
         queryClient.prefetchQuery({ queryKey: ['/api/doctors'] });
       }
     }
-  }, [isLoading, isAuthenticated, user, navigate, queryClient]);
+  }, [isLoading, isAuthenticated, user, navigate]);
   
   // Show loading state while checking authentication
   if (isLoading) {

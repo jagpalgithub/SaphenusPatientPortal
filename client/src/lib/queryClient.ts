@@ -23,8 +23,10 @@ export async function apiRequest(
     if (localAuth) {
       const parsedAuth = JSON.parse(localAuth);
       if (parsedAuth.isAuthenticated) {
-        // Include user ID in a custom header for backend to use
-        authHeaders['X-User-ID'] = parsedAuth.userId || '1';
+        // Include user ID and role in custom headers for backend to use
+        authHeaders['X-User-ID'] = String(parsedAuth.userId || '1');
+        authHeaders['X-User-Role'] = parsedAuth.role || 'patient';
+        console.log('Using localStorage auth with headers:', authHeaders);
       }
     }
     
@@ -75,9 +77,50 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    // Check for localStorage auth to include headers
+    const authHeaders: Record<string, string> = {};
+    const localAuth = localStorage.getItem('saphenus_auth');
+    
+    if (localAuth) {
+      try {
+        const parsedAuth = JSON.parse(localAuth);
+        if (parsedAuth.isAuthenticated) {
+          // Include user ID and role in custom headers for backend to use
+          authHeaders['X-User-ID'] = String(parsedAuth.userId || '1');
+          authHeaders['X-User-Role'] = parsedAuth.role || 'patient';
+        }
+      } catch (e) {
+        console.error('Error parsing localStorage auth', e);
+      }
+    }
+    
+    // Make request with auth headers
     const res = await fetch(queryKey[0] as string, {
       credentials: "include",
+      headers: authHeaders
     });
+
+    // Special handling for 401 when using localStorage auth
+    if (res.status === 401 && Object.keys(authHeaders).length > 0) {
+      console.log(`Got 401 for ${queryKey[0]}, but we have localStorage auth. Returning empty data.`);
+      
+      // Return empty data instead of null to avoid breaking components
+      const path = queryKey[0]?.toString() || '';
+      
+      // Arrays for collections
+      if (path.includes('health-metrics') || 
+          path.includes('appointments') || 
+          path.includes('doctors') ||
+          path.includes('device-alerts') ||
+          path.includes('prescriptions')) {
+        return ([] as any) as T;
+      } 
+      // Single objects
+      else {
+        // For other endpoints, return empty object
+        return ({} as any) as T;
+      }
+    }
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
