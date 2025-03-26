@@ -139,6 +139,50 @@ export class MemStorage implements IStorage {
   // This is a synchronous version of our initialization function to avoid Promise issues
   private initializeTestDataSync() {
     // Create users
+    const adminUser: User = {
+      id: this.currentIds.user++,
+      username: "admin",
+      password: "admin",
+      email: "admin@saphenus.com",
+      firstName: "Admin",
+      lastName: "User",
+      role: "patient",
+      profileImage: null
+    };
+    
+    this.users.set(adminUser.id, adminUser);
+    
+    // Create admin patient record
+    const adminPatient: Patient = {
+      id: this.currentIds.patient++,
+      userId: adminUser.id,
+      dateOfBirth: "1980-01-01",
+      insuranceNumber: "AT9876543210",
+      address: "Kärntner Straße 10, 1010 Vienna, Austria",
+      phone: "+43 664 9876543",
+      emergencyContact: "Hospital Emergency, +43 1 40400",
+      amputationType: "Below Knee - Left Leg",
+      amputationDate: "2022-05-15",
+      prostheticType: "Suralis-Enhanced Lower Limb Prosthesis",
+      prostheticSerialNumber: "SR-PLM-2022-0046",
+      suralisSerialNumber: "SRL-V2-2022-A046"
+    };
+    this.patients.set(adminPatient.id, adminPatient);
+    
+    // Add basic health metrics for admin user
+    const adminMetric: HealthMetric = {
+      id: this.currentIds.healthMetric++,
+      patientId: adminPatient.id,
+      recordDate: new Date(),
+      mobilityScore: 85,
+      phantomPainScore: 2,
+      sensorSensitivity: 90,
+      stepCount: 6500,
+      gaitStability: 88,
+      notes: "Initial assessment for admin user"
+    };
+    this.healthMetrics.set(adminMetric.id, adminMetric);
+    
     const patientUser: User = {
       id: this.currentIds.user++,
       username: "anna.wagner",

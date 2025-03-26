@@ -107,13 +107,8 @@ export function useAuth() {
     }
   }, [isLoadingUser, isLoadingProfile]);
 
-  // Auto-login for demo purposes
-  useEffect(() => {
-    if (userError && !isLoadingUser) {
-      // For demo purposes, automatically login as Anna Wagner
-      loginMutation.mutate({ username: "anna.wagner", password: "password" });
-    }
-  }, [userError, isLoadingUser]);
+  // No auto-login anymore
+  // We want users to log in manually with the login form
 
   const handleLogin = async (username: string, password: string) => {
     return loginMutation.mutateAsync({ username, password });
