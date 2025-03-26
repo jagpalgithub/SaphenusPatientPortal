@@ -328,11 +328,15 @@ const setupPatientRoutes = (app: Express) => {
   app.get('/api/patients/download-data', isAuthenticated, async (req, res) => {
     try {
       // Get the authenticated user's ID from the request
-      const userId = req.user?.id;
+      // Extract from req.user which is set in isAuthenticated middleware
+      const userId = (req.user as any)?.id;
       
       if (!userId) {
+        console.error('No user ID found for download data request');
         return res.status(401).json({ message: 'Authentication required' });
       }
+      
+      console.log('Downloading data for user ID:', userId);
       
       // Get the patient record for this user
       const patient = await storage.getPatientByUserId(userId);

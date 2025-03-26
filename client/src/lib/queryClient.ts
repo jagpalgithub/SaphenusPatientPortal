@@ -11,6 +11,9 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  options?: {
+    responseType?: 'json' | 'blob' | 'text';
+  }
 ): Promise<Response> {
   try {
     console.log(`Making ${method} request to ${url}`, data ? { data } : '');
@@ -30,12 +33,20 @@ export async function apiRequest(
       }
     }
     
+    // Create headers object
+    const headers: Record<string, string> = {};
+    
+    // Add Content-Type header for JSON data (but not for blob responses)
+    if (data && options?.responseType !== 'blob') {
+      headers["Content-Type"] = "application/json";
+    }
+    
+    // Add auth headers
+    Object.assign(headers, authHeaders);
+    
     const res = await fetch(url, {
       method,
-      headers: {
-        ...(data ? { "Content-Type": "application/json" } : {}),
-        ...authHeaders
-      },
+      headers,
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
     });
@@ -72,11 +83,10 @@ export async function apiRequest(
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
+export const getQueryFn = <TData,>({ on401: unauthorizedBehavior }: {
   on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
+}): QueryFunction<TData> => {
+  return async ({ queryKey }) => {
     // Check for localStorage auth to include headers
     const authHeaders: Record<string, string> = {};
     const localAuth = localStorage.getItem('saphenus_auth');
@@ -113,12 +123,12 @@ export const getQueryFn: <T>(options: {
           path.includes('doctors') ||
           path.includes('device-alerts') ||
           path.includes('prescriptions')) {
-        return ([] as unknown) as T;
+        return [] as unknown as TData;
       } 
       // Single objects
       else {
         // For other endpoints, return empty object
-        return ({} as unknown) as T;
+        return {} as unknown as TData;
       }
     }
 
@@ -129,6 +139,7 @@ export const getQueryFn: <T>(options: {
     await throwIfResNotOk(res);
     return await res.json();
   };
+};
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -137,10 +148,10 @@ export const queryClient = new QueryClient({
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: Infinity,
-      retry: false,
+      retry: false
     },
     mutations: {
-      retry: false,
-    },
-  },
+      retry: false
+    }
+  }
 });

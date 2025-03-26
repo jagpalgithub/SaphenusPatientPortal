@@ -69,8 +69,53 @@ export const userApi = {
   
   downloadPatientData: async () => {
     try {
-      // Use window.open to trigger the file download
-      window.open('/api/patients/download-data', '_blank');
+      // First try a normal approach with our API function which adds auth headers
+      const response = await fetch("/api/patients/download-data", {
+        method: "GET",
+        headers: {
+          // Add localStorage auth headers if available
+          ...(localStorage.getItem('saphenus_auth') ? (() => {
+            const auth = JSON.parse(localStorage.getItem('saphenus_auth') || '{}');
+            return {
+              'X-User-ID': String(auth.userId || 1),
+              'X-User-Role': auth.role || 'patient'
+            };
+          })() : {})
+        },
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status} ${response.statusText}`);
+      }
+      
+      // Extract the filename from Content-Disposition header if available
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'patient_data.csv';
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      // Convert response to blob
+      const blob = await response.blob();
+      
+      // Create a URL for the blob and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
       return true;
     } catch (error) {
       console.error("Error downloading patient data:", error);
