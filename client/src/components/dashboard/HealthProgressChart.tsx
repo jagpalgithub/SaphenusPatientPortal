@@ -1,6 +1,5 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { HealthMetric } from "@shared/schema";
 import { format } from 'date-fns';
 
@@ -13,7 +12,7 @@ export default function HealthProgressChart({ healthMetrics }: HealthProgressCha
   const chartData = [...healthMetrics]
     .sort((a, b) => new Date(a.recordDate).getTime() - new Date(b.recordDate).getTime())
     .map((metric, index, array) => {
-      // For demonstration purposes, generate improving values with each month
+      // Generate improving values with each month
       return {
         name: format(new Date(metric.recordDate), 'MMM'),
         mobilityScore: Math.min(95, 60 + index * 7), // Improving mobility
@@ -55,14 +54,6 @@ export default function HealthProgressChart({ healthMetrics }: HealthProgressCha
             <Legend />
             <Bar yAxisId="left" dataKey="mobilityScore" name="Mobility Score" fill="hsl(var(--primary))" barSize={30} />
             <Bar yAxisId="right" dataKey="phantomPain" name="Phantom Pain" fill="hsl(var(--destructive))" barSize={20} opacity={0.7} />
-            <Line 
-              yAxisId="right" 
-              type="monotone" 
-              dataKey="phantomPain" 
-              name="Phantom Pain (Line)" 
-              stroke="hsl(var(--accent))" 
-              activeDot={{ r: 8 }} 
-            />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
@@ -71,13 +62,9 @@ export default function HealthProgressChart({ healthMetrics }: HealthProgressCha
           <span className="h-3 w-3 bg-primary rounded-sm mr-2"></span>
           <span className="text-sm text-neutral-600">Mobility Score</span>
         </div>
-        <div className="flex items-center mr-4">
-          <span className="h-3 w-3 bg-destructive rounded-sm mr-2"></span>
-          <span className="text-sm text-neutral-600">Phantom Pain (Bar)</span>
-        </div>
         <div className="flex items-center">
-          <span className="h-3 w-3 bg-accent rounded-sm mr-2"></span>
-          <span className="text-sm text-neutral-600">Phantom Pain (Line)</span>
+          <span className="h-3 w-3 bg-destructive rounded-sm mr-2"></span>
+          <span className="text-sm text-neutral-600">Phantom Pain</span>
         </div>
       </CardFooter>
     </Card>
