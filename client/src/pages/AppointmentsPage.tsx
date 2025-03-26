@@ -51,6 +51,7 @@ export default function AppointmentsPage() {
       purpose: "",
       notes: "",
     },
+    mode: "onChange",
   });
 
   // Edit appointment form
@@ -63,6 +64,7 @@ export default function AppointmentsPage() {
       purpose: "",
       notes: "",
     },
+    mode: "onChange",
   });
 
   // Split appointments into upcoming and past
@@ -91,7 +93,7 @@ export default function AppointmentsPage() {
       const newAppointment: Partial<InsertAppointment> = {
         patientId: profile.id,
         doctorId: parseInt(values.doctorId),
-        dateTime: values.dateTime.toISOString(),
+        dateTime: values.dateTime instanceof Date ? values.dateTime.toISOString() : new Date().toISOString(),
         duration: parseInt(values.duration),
         purpose: values.purpose,
         notes: values.notes || null,
@@ -127,7 +129,7 @@ export default function AppointmentsPage() {
       const updatedAppointment = {
         ...currentAppointment,
         doctorId: parseInt(values.doctorId),
-        dateTime: values.dateTime.toISOString(),
+        dateTime: values.dateTime instanceof Date ? values.dateTime.toISOString() : new Date().toISOString(),
         duration: parseInt(values.duration),
         purpose: values.purpose,
         notes: values.notes || null,
