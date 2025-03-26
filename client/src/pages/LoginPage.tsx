@@ -47,25 +47,33 @@ export default function LoginPage() {
     
     setIsLoggingIn(true);
     try {
-      const user = await login(values.username, values.password);
-      if (user) {
-        // Show success toast first
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully logged in to your patient portal.",
-        });
-        
-        // Force navigation to dashboard by using window.location
-        // This ensures a complete page transition
-        console.log("Login successful, redirecting to dashboard...");
-        
-        // Use a slightly longer delay to ensure toast is shown and auth state is updated
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 500);
-      } else {
-        throw new Error("Login failed");
+      // Make a direct API call to login endpoint
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: values.username,
+          password: values.password
+        }),
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Login failed');
       }
+      
+      // Show success toast
+      toast({
+        title: "Welcome back!",
+        description: "You've successfully logged in to your patient portal.",
+      });
+      
+      console.log("Login successful, redirecting to dashboard...");
+      
+      // Force a hard browser redirect to dashboard
+      window.location.href = '/';
     } catch (error) {
       console.error("Login error:", error);
       toast({
@@ -75,8 +83,6 @@ export default function LoginPage() {
       });
       setIsLoggingIn(false);
     }
-    // Note: Not calling setIsLoggingIn(false) in the success case
-    // because we're redirecting the page anyway
   };
 
   return (
