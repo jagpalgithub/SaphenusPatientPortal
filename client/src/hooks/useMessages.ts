@@ -9,14 +9,18 @@ export function useMessages() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Get normalized user ID (checking both possible fields)
+  const userId = user?.id || user?.userId;
+  
   // Get user messages
   const { 
     data: messages,
     isLoading,
-    error
+    error,
+    refetch: refetchMessages
   } = useQuery({
-    queryKey: ['/api/messages/user', user?.id],
-    enabled: !!user?.id,
+    queryKey: ['/api/messages/user', userId],
+    enabled: !!userId, // Only run query if we have a valid user ID
     staleTime: 1000 * 30, // 30 seconds for messages
   });
 
@@ -48,7 +52,13 @@ export function useMessages() {
       return messagesApi.createMessage(messageToSend);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/messages/user', user?.id] });
+      // Force refetch messages using the correct user ID
+      if (userId) {
+        console.log('Message sent successfully, invalidating messages for user ID:', userId);
+        queryClient.invalidateQueries({ queryKey: ['/api/messages/user', userId] });
+        // Also explicitly refetch to ensure we get the latest data
+        refetchMessages();
+      }
     },
     onError: (error) => {
       console.error('Failed to send message:', error);
@@ -65,7 +75,12 @@ export function useMessages() {
     mutationFn: (messageId: number) => 
       messagesApi.markMessageAsRead(messageId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/messages/user', user?.id] });
+      // Use normalized user ID for consistency
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: ['/api/messages/user', userId] });
+        // Explicitly refetch to ensure we get the latest data
+        refetchMessages();
+      }
     },
     onError: () => {
       toast({
