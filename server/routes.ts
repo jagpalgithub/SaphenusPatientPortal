@@ -178,6 +178,20 @@ const setupPatientRoutes = (app: Express) => {
       res.status(500).json({ message: 'Failed to get doctors', error });
     }
   });
+  
+  // Update patient
+  app.patch('/api/patients/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const patient = await storage.updatePatient(parseInt(id), req.body);
+      if (!patient) {
+        return res.status(404).json({ message: 'Patient not found' });
+      }
+      res.json(patient);
+    } catch (error) {
+      res.status(400).json({ message: 'Invalid patient data', error });
+    }
+  });
 };
 
 // Appointment routes
