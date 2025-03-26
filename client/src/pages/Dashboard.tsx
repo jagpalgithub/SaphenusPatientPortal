@@ -54,8 +54,8 @@ export default function Dashboard() {
   };
 
   // Get next appointment
-  const nextAppointment = appointments && appointments.length > 0
-    ? appointments.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())[0]
+  const nextAppointment = appointments && Array.isArray(appointments) && appointments.length > 0
+    ? appointments.sort((a: any, b: any) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())[0]
     : null;
 
   return (
@@ -90,9 +90,9 @@ export default function Dashboard() {
       </div>
 
       {/* Alert Section */}
-      {alerts && alerts.length > 0 && (
+      {alerts && Array.isArray(alerts) && alerts.length > 0 && (
         <div className="mb-6">
-          {alerts.map((alert) => (
+          {alerts.map((alert: any) => (
             <DeviceAlert
               key={alert.id}
               alert={alert}
@@ -106,12 +106,13 @@ export default function Dashboard() {
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         {/* Mobility Score */}
-        {latestMetrics && (
+        {latestMetrics && typeof latestMetrics === 'object' && (
           <>
             <HealthMetricCard
               title="Mobility Score"
-              value={`${latestMetrics.mobilityScore}/100`}
-              previousValue={metrics && metrics.length > 1 ? metrics[metrics.length - 2].mobilityScore : undefined}
+              value={`${(latestMetrics as any).mobilityScore}/100`}
+              previousValue={metrics && Array.isArray(metrics) && metrics.length > 1 ? 
+                (metrics[metrics.length - 2] as any).mobilityScore : undefined}
               icon={<svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>}
@@ -124,8 +125,9 @@ export default function Dashboard() {
             {/* Phantom Pain Score */}
             <HealthMetricCard
               title="Phantom Pain Rating"
-              value={`${latestMetrics.phantomPainScore}/10`}
-              previousValue={metrics && metrics.length > 1 ? metrics[metrics.length - 2].phantomPainScore : undefined}
+              value={`${(latestMetrics as any).phantomPainScore}/10`}
+              previousValue={metrics && Array.isArray(metrics) && metrics.length > 1 ? 
+                (metrics[metrics.length - 2] as any).phantomPainScore : undefined}
               icon={<svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>}
@@ -138,8 +140,9 @@ export default function Dashboard() {
             {/* Sensor Sensitivity */}
             <HealthMetricCard
               title="Sensor Sensitivity"
-              value={`${latestMetrics.sensorSensitivity}%`}
-              previousValue={metrics && metrics.length > 1 ? metrics[metrics.length - 2].sensorSensitivity : undefined}
+              value={`${(latestMetrics as any).sensorSensitivity}%`}
+              previousValue={metrics && Array.isArray(metrics) && metrics.length > 1 ? 
+                (metrics[metrics.length - 2] as any).sensorSensitivity : undefined}
               icon={<svg className="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
               </svg>}
@@ -167,18 +170,18 @@ export default function Dashboard() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
         {/* Health Progress Chart */}
-        {metrics && metrics.length > 0 && (
+        {metrics && Array.isArray(metrics) && metrics.length > 0 && (
           <HealthProgressChart healthMetrics={metrics} />
         )}
 
         {/* Latest Updates */}
-        {updates && updates.length > 0 && (
+        {updates && Array.isArray(updates) && updates.length > 0 && (
           <ActivityFeed updates={updates} />
         )}
       </div>
       
       {/* Enhanced Health Scores Visualization */}
-      {metrics && metrics.length > 0 ? (
+      {metrics && Array.isArray(metrics) && metrics.length > 0 ? (
         <>
           {console.log("Rendering health score charts with metrics:", metrics)}
           <div className="grid grid-cols-1 gap-6 mb-6">
@@ -198,7 +201,7 @@ export default function Dashboard() {
       {/* Upcoming Appointments & Prescriptions */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-6">
         {/* Upcoming Appointments */}
-        {appointments && (
+        {appointments && Array.isArray(appointments) && (
           <AppointmentList
             appointments={appointments}
             onNewAppointment={handleNewAppointment}
@@ -208,7 +211,7 @@ export default function Dashboard() {
         )}
 
         {/* Active Prescriptions */}
-        {prescriptions && (
+        {prescriptions && Array.isArray(prescriptions) && (
           <PrescriptionList prescriptions={prescriptions} />
         )}
       </div>

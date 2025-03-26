@@ -93,40 +93,45 @@ export default function AppointmentsPage() {
       const newAppointment = {
         patientId: profile.id,
         doctorId: parseInt(values.doctorId),
-        dateTime: values.dateTime.toISOString(), // dateTime is already a Date because of the schema validation
+        dateTime: values.dateTime, // Keep as Date object
         duration: parseInt(values.duration),
         purpose: values.purpose,
         notes: values.notes || null,
-        status: "scheduled",
-        fee: 0,
-        feePaid: false,
+        status: "scheduled"
+        // Remove fee and feePaid as they're optional and may be causing issues
       };
       
       console.log("Creating appointment with data:", newAppointment);
       
-      // Convert the date format correctly before sending to API
-      await createAppointment({
-        patientId: newAppointment.patientId,
-        doctorId: newAppointment.doctorId,
-        dateTime: new Date(newAppointment.dateTime),
-        duration: newAppointment.duration,
-        purpose: newAppointment.purpose,
-        notes: newAppointment.notes,
-        status: newAppointment.status,
-        fee: newAppointment.fee,
-        feePaid: newAppointment.feePaid
-      });
+      await createAppointment(newAppointment);
       setIsCreateDialogOpen(false);
       createForm.reset();
       toast({
         title: "Appointment created",
         description: "Your appointment has been scheduled successfully",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Appointment creation error:", error);
+      
+      // Get more details about the error
+      let errorMessage = "Failed to create appointment. Please check all fields and try again.";
+      if (error.response) {
+        try {
+          const errorData = await error.response.json();
+          console.error("Error details:", errorData);
+          if (errorData.error && errorData.error.issues) {
+            errorMessage = errorData.error.issues.map((i: any) => i.message).join(", ");
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          console.error("Error parsing error response:", e);
+        }
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to create appointment. Please check all fields and try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
