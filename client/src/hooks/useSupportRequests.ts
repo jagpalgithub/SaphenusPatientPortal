@@ -51,7 +51,8 @@ export function useSupportRequests() {
         description: "The support request status has been updated",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Failed to update support request:", error);
       toast({
         title: "Error",
         description: "Failed to update support request",

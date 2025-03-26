@@ -40,7 +40,8 @@ export function useAppointments() {
         description: "Your appointment has been successfully scheduled",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Failed to schedule appointment:", error);
       toast({
         title: "Error",
         description: "Failed to schedule appointment",
