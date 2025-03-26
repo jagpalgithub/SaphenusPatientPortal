@@ -67,11 +67,7 @@ export default function LoginPage() {
       <div className="w-full max-w-lg space-y-8">
         {/* Logo and branding */}
         <div className="text-center">
-          <img 
-            src={saphenusLogo} 
-            alt="Saphenus Medical Technology" 
-            className="mx-auto mb-4 h-14" 
-          />
+          <h1 className="text-3xl font-bold text-indigo-800">Saphenus Medical Technology</h1>
           <p className="mt-2 text-lg text-indigo-600">Restoring Sensory Experience</p>
         </div>
 
