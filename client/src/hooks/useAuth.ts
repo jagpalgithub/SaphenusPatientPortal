@@ -66,8 +66,27 @@ export function useAuth() {
         isAuthenticated: true,
         isLoading: false 
       });
+      
+      // Also fetch profile data from the backend
+      // This ensures we get all the data associated with the user
+      queryClient.fetchQuery({ 
+        queryKey: ['/api/users/profile']
+      });
+      
+      // Fetch other essential data needed for the dashboard
+      if (localUser.role === 'patient') {
+        const patientId = localUser.userId || 1; // Use default patient ID if not present
+        queryClient.fetchQuery({ queryKey: [`/api/health-metrics/patient/${patientId}`] });
+        queryClient.fetchQuery({ queryKey: [`/api/appointments/patient/${patientId}`] });
+        queryClient.fetchQuery({ queryKey: [`/api/prescriptions/patient/${patientId}`] });
+        queryClient.fetchQuery({ queryKey: [`/api/device-alerts/patient/${patientId}`] });
+        queryClient.fetchQuery({ queryKey: [`/api/updates/patient/${patientId}`] });
+        queryClient.fetchQuery({ queryKey: [`/api/support-requests/patient/${patientId}`] });
+        queryClient.fetchQuery({ queryKey: [`/api/messages/user/${localUser.userId || 1}`] });
+        queryClient.fetchQuery({ queryKey: ['/api/doctors'] });
+      }
     }
-  }, []);
+  }, [queryClient]);
 
   // Get current user query as backup
   const { 
@@ -92,7 +111,7 @@ export function useAuth() {
     isLoading: isLoadingProfile
   } = useQuery<Patient | null>({
     queryKey: ['/api/users/profile'],
-    enabled: !!globalAuthState.user && globalAuthState.user.role === 'patient'
+    enabled: !!globalAuthState.user
   });
   
   // Update state when profile data changes

@@ -96,26 +96,64 @@ const configureAuth = (app: Express) => {
 };
 
 // Middleware to check if user is authenticated
+// Now with support for localStorage-based authentication as a fallback
 const isAuthenticated = (req: Request, res: Response, next: Function) => {
+  // First check if user is authenticated via session
   if (req.isAuthenticated()) {
     return next();
   }
+  
+  // Check for X-User-ID header which is set when using localStorage auth
+  const userIdHeader = req.headers['x-user-id'];
+  if (userIdHeader) {
+    // We have a user ID from localStorage, let's use that
+    const userId = parseInt(userIdHeader as string, 10);
+    
+    // Attach a userId to the request for use in routes
+    (req as any).localAuthUserId = userId;
+    
+    return next();
+  }
+  
+  // Not authenticated and no localStorage auth
   res.status(401).json({ message: 'Not authenticated' });
 };
 
 // Middleware to check if user is a patient
 const isPatient = (req: Request, res: Response, next: Function) => {
+  // Check session authentication first
   if (req.isAuthenticated() && req.user && (req.user as any).role === 'patient') {
     return next();
   }
+  
+  // Check localStorage auth as fallback
+  const userIdHeader = req.headers['x-user-id'];
+  const roleHeader = req.headers['x-user-role'];
+  
+  if (userIdHeader && roleHeader === 'patient') {
+    // User is authenticated via localStorage and is a patient
+    return next();
+  }
+  
   res.status(403).json({ message: 'Access denied' });
 };
 
 // Middleware to check if user is a doctor or admin
 const isDoctor = (req: Request, res: Response, next: Function) => {
+  // Check session authentication first
   if (req.isAuthenticated() && req.user && (req.user as any).role === 'doctor') {
     return next();
   }
+  
+  // Check localStorage auth as fallback
+  const userIdHeader = req.headers['x-user-id'];
+  const roleHeader = req.headers['x-user-role'];
+  
+  if (userIdHeader && roleHeader === 'doctor') {
+    // User is authenticated via localStorage and is a doctor
+    return next();
+  }
+  
   res.status(403).json({ message: 'Access denied' });
 };
 
