@@ -93,7 +93,7 @@ export default function AppointmentsPage() {
       const newAppointment = {
         patientId: profile.id,
         doctorId: parseInt(values.doctorId),
-        dateTime: values.dateTime.toISOString(), // Convert Date to ISO string
+        dateTime: values.dateTime, // Keep as Date object, will be converted in the hook
         duration: parseInt(values.duration),
         purpose: values.purpose,
         notes: values.notes || null,
@@ -145,7 +145,7 @@ export default function AppointmentsPage() {
     try {
       const updatedAppointment = {
         doctorId: parseInt(values.doctorId),
-        dateTime: values.dateTime instanceof Date ? values.dateTime.toISOString() : new Date().toISOString(),
+        dateTime: values.dateTime, // Keep as Date object, conversion handled in hook
         duration: parseInt(values.duration),
         purpose: values.purpose,
         notes: values.notes || null

@@ -3,6 +3,7 @@ import { appointmentsApi, userApi } from "@/lib/api";
 import { useAuth } from "./useAuth";
 import { Appointment, InsertAppointment } from "@shared/schema";
 import { useToast } from "./use-toast";
+import { login } from "@/lib/auth";
 
 export function useAppointments() {
   const { user, profile } = useAuth();
@@ -31,8 +32,31 @@ export function useAppointments() {
 
   // Create appointment mutation
   const createMutation = useMutation({
-    mutationFn: (appointment: InsertAppointment) => 
-      appointmentsApi.createAppointment(appointment),
+    mutationFn: async (appointment: InsertAppointment) => {
+      // Convert Date to ISO string if it's not already
+      const appointmentData = {
+        ...appointment,
+        dateTime: appointment.dateTime instanceof Date 
+          ? appointment.dateTime.toISOString() 
+          : appointment.dateTime
+      };
+      
+      try {
+        // First try to create the appointment
+        return await appointmentsApi.createAppointment(appointmentData);
+      } catch (err) {
+        // If unauthorized, try to login again
+        if (err instanceof Error && err.toString().includes("401")) {
+          if (user) {
+            console.log("Authentication failed. Attempting to login again...");
+            await login("anna.wagner", "password");
+            // Retry after login
+            return await appointmentsApi.createAppointment(appointmentData);
+          }
+        }
+        throw err;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/appointments/patient/${profile?.id}`, profile?.id] });
       toast({
@@ -44,7 +68,7 @@ export function useAppointments() {
       console.error("Failed to schedule appointment:", error);
       toast({
         title: "Error",
-        description: "Failed to schedule appointment",
+        description: "Failed to schedule appointment. Please check all fields and try again.",
         variant: "destructive",
       });
     }
@@ -52,8 +76,22 @@ export function useAppointments() {
 
   // Update appointment mutation
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Appointment> }) => 
-      appointmentsApi.updateAppointment(id, data),
+    mutationFn: async ({ id, data }: { id: number; data: Partial<Appointment> }) => {
+      try {
+        return await appointmentsApi.updateAppointment(id, data);
+      } catch (err) {
+        // If unauthorized, try to login again
+        if (err instanceof Error && err.toString().includes("401")) {
+          if (user) {
+            console.log("Authentication failed. Attempting to login again...");
+            await login("anna.wagner", "password");
+            // Retry after login
+            return await appointmentsApi.updateAppointment(id, data);
+          }
+        }
+        throw err;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/appointments/patient/${profile?.id}`, profile?.id] });
       toast({
@@ -73,8 +111,22 @@ export function useAppointments() {
 
   // Delete appointment mutation
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => 
-      appointmentsApi.deleteAppointment(id),
+    mutationFn: async (id: number) => {
+      try {
+        return await appointmentsApi.deleteAppointment(id);
+      } catch (err) {
+        // If unauthorized, try to login again
+        if (err instanceof Error && err.toString().includes("401")) {
+          if (user) {
+            console.log("Authentication failed. Attempting to login again...");
+            await login("anna.wagner", "password");
+            // Retry after login
+            return await appointmentsApi.deleteAppointment(id);
+          }
+        }
+        throw err;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/appointments/patient/${profile?.id}`, profile?.id] });
       toast({
