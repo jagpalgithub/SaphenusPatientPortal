@@ -14,7 +14,7 @@ export function useAlerts() {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['/api/device-alerts/patient', profile?.id],
+    queryKey: [`/api/device-alerts/patient/${profile?.id}`, profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 1, // 1 minute - alerts are important
   });
@@ -25,7 +25,7 @@ export function useAlerts() {
     isLoading: isLoadingUnread,
     error: unreadError
   } = useQuery({
-    queryKey: ['/api/device-alerts/patient', profile?.id, 'unread'],
+    queryKey: [`/api/device-alerts/patient/${profile?.id}/unread`, profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 1, // 1 minute
   });
@@ -35,8 +35,8 @@ export function useAlerts() {
     mutationFn: (alertId: number) => 
       alertsApi.markDeviceAlertAsRead(alertId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/device-alerts/patient', profile?.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/device-alerts/patient', profile?.id, 'unread'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/device-alerts/patient/${profile?.id}`, profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/device-alerts/patient/${profile?.id}/unread`, profile?.id] });
     },
     onError: () => {
       toast({
@@ -52,8 +52,8 @@ export function useAlerts() {
     mutationFn: ({ id, notes }: { id: number; notes: string }) => 
       alertsApi.resolveDeviceAlert(id, notes),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/device-alerts/patient', profile?.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/device-alerts/patient', profile?.id, 'unread'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/device-alerts/patient/${profile?.id}`, profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/device-alerts/patient/${profile?.id}/unread`, profile?.id] });
       toast({
         title: "Alert resolved",
         description: "The device alert has been resolved",

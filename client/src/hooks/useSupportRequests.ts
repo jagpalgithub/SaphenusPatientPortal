@@ -15,7 +15,7 @@ export function useSupportRequests() {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['/api/support-requests/patient', profile?.id],
+    queryKey: [`/api/support-requests/patient/${profile?.id}`, profile?.id],
     enabled: !!profile?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -25,7 +25,7 @@ export function useSupportRequests() {
     mutationFn: (request: InsertSupportRequest) => 
       supportApi.createSupportRequest(request),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/support-requests/patient', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/support-requests/patient/${profile?.id}`, profile?.id] });
       toast({
         title: "Support request submitted",
         description: "Your support request has been successfully submitted",
@@ -45,7 +45,7 @@ export function useSupportRequests() {
     mutationFn: ({ id, status, notes }: { id: number; status: string; notes?: string }) => 
       supportApi.updateSupportRequestStatus(id, status, notes),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/support-requests/patient', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/support-requests/patient/${profile?.id}`, profile?.id] });
       toast({
         title: "Support request updated",
         description: "The support request status has been updated",

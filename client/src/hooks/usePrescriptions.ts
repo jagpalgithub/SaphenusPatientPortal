@@ -36,8 +36,8 @@ export function usePrescriptions() {
     mutationFn: (prescription: InsertPrescription) => 
       prescriptionsApi.createPrescription(prescription),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/prescriptions/patient', profile?.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/prescriptions/patient', profile?.id, 'active'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/prescriptions/patient/${profile?.id}`, profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/prescriptions/patient/${profile?.id}/active`, profile?.id] });
       toast({
         title: "Prescription created",
         description: "The prescription has been successfully created",
@@ -57,8 +57,8 @@ export function usePrescriptions() {
     mutationFn: ({ id, data }: { id: number; data: Partial<Prescription> }) => 
       prescriptionsApi.updatePrescription(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/prescriptions/patient', profile?.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/prescriptions/patient', profile?.id, 'active'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/prescriptions/patient/${profile?.id}`, profile?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/prescriptions/patient/${profile?.id}/active`, profile?.id] });
       toast({
         title: "Prescription updated",
         description: "The prescription has been successfully updated",
