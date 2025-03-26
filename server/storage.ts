@@ -443,7 +443,7 @@ export class MemStorage implements IStorage {
     const alert1: DeviceAlert = {
       id: this.currentIds.deviceAlert++,
       patientId: anna.id,
-      timestamp: new Date(),
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 2),
       alertType: "calibration",
       message: "Your Suralis sensory feedback system needs a calibration. Please schedule an appointment with Dr. Müller.",
       severity: "medium",
@@ -702,11 +702,15 @@ export class MemStorage implements IStorage {
     });
     
     // Create health metrics for the patient
+    // Use current date instead of future date (March 2025)
     const currentDate = new Date();
+    // Set the date to a specific date to ensure consistency
+    currentDate.setFullYear(2023);
+    currentDate.setMonth(8); // September 2023
     
     // Add 6 months of health metrics data with realistic trends
     for (let i = 5; i >= 0; i--) {
-      const date = new Date();
+      const date = new Date(currentDate);
       date.setMonth(date.getMonth() - i);
       
       // Mobility score gradually improving (0-100 scale)
@@ -836,10 +840,10 @@ export class MemStorage implements IStorage {
     // Add device alerts
     this.createDeviceAlert({
       patientId: anna.id,
-      timestamp: new Date(),
+      timestamp: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 2),
       alertType: "calibration",
       message: "Your Suralis sensory feedback system needs a calibration. Please schedule an appointment with Dr. Müller.",
-      severity: "medium",
+      severity: "medium", 
       isRead: false,
       isResolved: false,
       resolutionNotes: null
