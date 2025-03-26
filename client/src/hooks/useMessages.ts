@@ -101,12 +101,24 @@ export function useMessages() {
     return readMutation.mutateAsync(messageId);
   };
 
+  // Handle manual refresh of messages
+  const refreshMessages = () => {
+    if (userId) {
+      console.log('Manually refreshing messages for user ID:', userId);
+      return refetchMessages();
+    } else {
+      console.error('Cannot refresh messages: No valid user ID available');
+      return Promise.reject(new Error('No valid user ID available'));
+    }
+  };
+
   return {
     messages,
     isLoading,
     error,
     sendMessage,
     markAsRead,
+    refreshMessages,
     isSending: createMutation.isPending,
     isMarking: readMutation.isPending,
   };

@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function MessagesPage() {
   const { user } = useAuth();
   const { doctors, isLoading: isLoadingDoctors } = useMedicalStaff();
-  const { messages, sendMessage, markAsRead, isLoading, isSending } = useMessages();
+  const { messages, sendMessage, markAsRead, isLoading, isSending, refreshMessages } = useMessages();
   const [selectedConversation, setSelectedConversation] = useState<number | null>(null);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -218,19 +218,34 @@ export default function MessagesPage() {
           {selectedConversation ? (
             <>
               <CardHeader className="border-b border-neutral-200">
-                <div className="flex items-center">
-                  <Avatar className="h-10 w-10 mr-3">
-                    <AvatarFallback>
-                      {selectedDoctor?.user.firstName.charAt(0)}
-                      {selectedDoctor?.user.lastName.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <CardTitle>
-                      Dr. {selectedDoctor?.user.firstName} {selectedDoctor?.user.lastName}
-                    </CardTitle>
-                    <CardDescription>{selectedDoctor?.specialization}</CardDescription>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center">
+                    <Avatar className="h-10 w-10 mr-3">
+                      <AvatarFallback>
+                        {selectedDoctor?.user.firstName.charAt(0)}
+                        {selectedDoctor?.user.lastName.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <CardTitle>
+                        Dr. {selectedDoctor?.user.firstName} {selectedDoctor?.user.lastName}
+                      </CardTitle>
+                      <CardDescription>{selectedDoctor?.specialization}</CardDescription>
+                    </div>
                   </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      toast({
+                        title: "Refreshing messages",
+                        description: "Getting the latest messages...",
+                      });
+                      refreshMessages();
+                    }}
+                  >
+                    Refresh
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent className="p-4 h-[500px] overflow-y-auto">
