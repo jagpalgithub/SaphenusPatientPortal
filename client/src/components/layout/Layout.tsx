@@ -17,9 +17,9 @@ export default function Layout({ children }: LayoutProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-lg">Loading...</span>
+        <span className="ml-2 text-lg dark:text-gray-300">Loading...</span>
       </div>
     );
   }
@@ -30,12 +30,12 @@ export default function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-900">
       {/* Sidebar */}
       {sidebarOpen && (
         <div className="fixed inset-0 flex z-40 md:hidden">
           <div
-            className="fixed inset-0 bg-neutral-600 bg-opacity-75"
+            className="fixed inset-0 bg-neutral-600 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-80"
             onClick={() => setSidebarOpen(false)}
           ></div>
           <Sidebar />
@@ -50,7 +50,7 @@ export default function Layout({ children }: LayoutProps) {
         <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         
         {/* Page Content */}
-        <div className="flex-1 overflow-auto bg-neutral-50">
+        <div className="flex-1 overflow-auto bg-neutral-50 dark:bg-gray-900">
           {children}
         </div>
         

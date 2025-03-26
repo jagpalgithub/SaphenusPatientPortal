@@ -11,7 +11,7 @@ export function ThemeSwitcher() {
       size="icon"
       onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
       title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-      className="relative flex-shrink-0 p-1 text-neutral-500 rounded-full hover:text-neutral-900 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+      className="relative flex-shrink-0 p-1 text-neutral-500 dark:text-gray-400 rounded-full hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
       {theme === 'light' ? (
