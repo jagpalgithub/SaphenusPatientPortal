@@ -57,6 +57,9 @@ export default function AppointmentsPage() {
   const editForm = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
+      doctorId: "",
+      dateTime: new Date(),
+      duration: "30",
       purpose: "",
       notes: "",
     },
@@ -180,6 +183,19 @@ export default function AppointmentsPage() {
     });
     setIsEditDialogOpen(true);
   };
+  
+  // Handle opening the create dialog
+  const handleOpenCreateDialog = () => {
+    console.log("Create new appointment");
+    createForm.reset({
+      doctorId: "",
+      dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+      duration: "30",
+      purpose: "",
+      notes: "",
+    });
+    setIsCreateDialogOpen(true);
+  };
 
   return (
     <div className="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -193,16 +209,7 @@ export default function AppointmentsPage() {
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4">
           <Button
-            onClick={() => {
-              createForm.reset({
-                doctorId: "",
-                dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
-                duration: "30",
-                purpose: "",
-                notes: "",
-              });
-              setIsCreateDialogOpen(true);
-            }}
+            onClick={handleOpenCreateDialog}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             New Appointment
@@ -237,16 +244,7 @@ export default function AppointmentsPage() {
                   </p>
                   <div className="mt-6">
                     <Button 
-                      onClick={() => {
-                        createForm.reset({
-                          doctorId: "",
-                          dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
-                          duration: "30",
-                          purpose: "",
-                          notes: "",
-                        });
-                        setIsCreateDialogOpen(true);
-                      }}
+                      onClick={handleOpenCreateDialog}
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                     >
                       Schedule New Appointment
@@ -395,8 +393,8 @@ export default function AppointmentsPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {doctors && doctors.length > 0 ? (
-                          doctors.map((doctor) => (
+                        {doctors && Array.isArray(doctors) && doctors.length > 0 ? (
+                          doctors.map((doctor: any) => (
                             <SelectItem key={doctor.id} value={doctor.id.toString()}>
                               Dr. {doctor.user.firstName} {doctor.user.lastName}
                             </SelectItem>
@@ -560,8 +558,8 @@ export default function AppointmentsPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {doctors && doctors.length > 0 ? (
-                          doctors.map((doctor) => (
+                        {doctors && Array.isArray(doctors) && doctors.length > 0 ? (
+                          doctors.map((doctor: any) => (
                             <SelectItem key={doctor.id} value={doctor.id.toString()}>
                               Dr. {doctor.user.firstName} {doctor.user.lastName}
                             </SelectItem>
