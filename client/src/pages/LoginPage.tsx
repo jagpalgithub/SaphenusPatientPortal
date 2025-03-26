@@ -49,16 +49,20 @@ export default function LoginPage() {
     try {
       const user = await login(values.username, values.password);
       if (user) {
-        // Add a small delay to ensure auth state is updated before navigation
+        // Show success toast first
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully logged in to your patient portal.",
+        });
+        
+        // Force navigation to dashboard by using window.location
+        // This ensures a complete page transition
+        console.log("Login successful, redirecting to dashboard...");
+        
+        // Use a slightly longer delay to ensure toast is shown and auth state is updated
         setTimeout(() => {
-          // Force navigation to dashboard by using window.location
-          // This ensures a complete page transition
           window.location.href = "/";
-          toast({
-            title: "Welcome back!",
-            description: "You've successfully logged in to your patient portal.",
-          });
-        }, 100);
+        }, 500);
       } else {
         throw new Error("Login failed");
       }
