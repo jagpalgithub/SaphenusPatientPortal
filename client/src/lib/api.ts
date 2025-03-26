@@ -241,12 +241,24 @@ export const messagesApi = {
 // Support requests
 export const supportApi = {
   getPatientSupportRequests: async (patientId: number) => {
+    if (!patientId) {
+      return [];
+    }
     const response = await apiRequest("GET", `/api/support-requests/patient/${patientId}`);
     return response.json();
   },
   
   createSupportRequest: async (data: any) => {
-    const response = await apiRequest("POST", "/api/support-requests", data);
+    // Format timestamp properly if it's a Date object
+    const formattedData = {
+      ...data,
+      timestamp: data.timestamp instanceof Date 
+        ? data.timestamp.toISOString() 
+        : data.timestamp,
+    };
+    
+    console.log('Creating support request with data:', formattedData);
+    const response = await apiRequest("POST", "/api/support-requests", formattedData);
     return response.json();
   },
   

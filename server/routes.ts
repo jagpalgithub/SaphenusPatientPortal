@@ -596,10 +596,22 @@ const setupSupportRequestRoutes = (app: Express) => {
   // Create a new support request
   app.post('/api/support-requests', isPatient, async (req, res) => {
     try {
-      const requestData = insertSupportRequestSchema.parse(req.body);
-      const request = await storage.createSupportRequest(requestData);
+      console.log('Received support request data:', req.body);
+      
+      // Ensure timestamp is a valid Date object on the server side
+      const requestData = {
+        ...req.body,
+        timestamp: new Date(req.body.timestamp)
+      };
+      
+      // Parse with schema
+      const validRequestData = insertSupportRequestSchema.parse(requestData);
+      const request = await storage.createSupportRequest(validRequestData);
+      
+      console.log('Support request created successfully:', request);
       res.status(201).json(request);
     } catch (error) {
+      console.error('Failed to create support request:', error);
       res.status(400).json({ message: 'Invalid support request data', error });
     }
   });
