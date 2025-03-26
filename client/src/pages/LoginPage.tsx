@@ -92,10 +92,8 @@ export default function LoginPage() {
           role: "patient"
         }));
         
-        // Force page reload to dashboard after a short delay
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1000);
+        // Force immediate redirection without adding to browser history
+        window.location.replace('/');
         
         return;
       }
@@ -137,10 +135,8 @@ export default function LoginPage() {
       
       console.log("Login successful, redirecting to dashboard...");
       
-      // Force page reload to dashboard after a short delay
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1000);
+      // Force immediate redirection without adding to browser history
+      window.location.replace('/');
     } catch (error) {
       console.error("Login error:", error);
       toast({

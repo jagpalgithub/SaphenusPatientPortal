@@ -126,8 +126,8 @@ export function useAuth() {
       // Update global state
       updateAuthState({ isAuthenticated: false, user: null, profile: null });
       
-      // Force reload to ensure clean state
-      window.location.href = '/login';
+      // Force instant reload to login page
+      window.location.replace('/login');
     }
   });
 
