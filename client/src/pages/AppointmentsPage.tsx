@@ -89,11 +89,11 @@ export default function AppointmentsPage() {
     if (!profile) return;
     
     try {
-      // Ensure the date is properly formatted as ISO string for the API
-      const newAppointment: Partial<InsertAppointment> = {
+      // Ensure the data is properly formatted for the API
+      const newAppointment = {
         patientId: profile.id,
         doctorId: parseInt(values.doctorId),
-        dateTime: values.dateTime instanceof Date ? values.dateTime.toISOString() : new Date().toISOString(),
+        dateTime: values.dateTime.toISOString(), // dateTime is already a Date because of the schema validation
         duration: parseInt(values.duration),
         purpose: values.purpose,
         notes: values.notes || null,
