@@ -248,6 +248,104 @@ const setupPatientRoutes = (app: Express) => {
       res.status(400).json({ message: 'Invalid patient data', error });
     }
   });
+  
+  // Download patient data as CSV
+  app.get('/api/patients/download-data', isAuthenticated, async (req, res) => {
+    try {
+      // Get the authenticated user's ID from the request
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+      
+      // Get the patient record for this user
+      const patient = await storage.getPatientByUserId(userId);
+      
+      if (!patient) {
+        return res.status(404).json({ message: 'Patient profile not found' });
+      }
+      
+      // Get all relevant patient data
+      const metrics = await storage.getPatientHealthMetrics(patient.id);
+      const appointments = await storage.getPatientAppointments(patient.id);
+      const prescriptions = await storage.getPatientPrescriptions(patient.id);
+      const alerts = await storage.getPatientDeviceAlerts(patient.id);
+      const updates = await storage.getPatientUpdates(patient.id);
+      
+      // Get user data for patient details
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Generate CSV content
+      let csvContent = "Saphenus Medical Technology - Patient Data Export\n";
+      csvContent += `Generated on: ${new Date().toISOString()}\n\n`;
+      
+      // Patient Profile
+      csvContent += "PATIENT INFORMATION\n";
+      csvContent += `Patient ID,User ID,First Name,Last Name,Date of Birth,Insurance Number,Address,Phone,Emergency Contact\n`;
+      csvContent += `${patient.id},${patient.userId},${user.firstName},${user.lastName},${patient.dateOfBirth || ''},${patient.insuranceNumber || ''},${patient.address || ''},${patient.phone || ''},${patient.emergencyContact || ''}\n\n`;
+      
+      // Amputation & Prosthetic Info
+      csvContent += "AMPUTATION & PROSTHETIC INFORMATION\n";
+      csvContent += `Amputation Type,Amputation Date,Prosthetic Type,Prosthetic Serial Number,Suralis Serial Number\n`;
+      csvContent += `${patient.amputationType || ''},${patient.amputationDate || ''},${patient.prostheticType || ''},${patient.prostheticSerialNumber || ''},${patient.suralisSerialNumber || ''}\n\n`;
+      
+      // Health Metrics
+      csvContent += "HEALTH METRICS\n";
+      csvContent += "ID,Record Date,Mobility Score,Phantom Pain Score,Sensor Sensitivity,Step Count,Gait Stability,Notes\n";
+      metrics.forEach(metric => {
+        csvContent += `${metric.id},${metric.recordDate},${metric.mobilityScore},${metric.phantomPainScore},${metric.sensorSensitivity},${metric.stepCount},${metric.gaitStability},${metric.notes || ''}\n`;
+      });
+      csvContent += "\n";
+      
+      // Appointments
+      csvContent += "APPOINTMENTS\n";
+      csvContent += "ID,Doctor,Date & Time,Status,Purpose,Duration,Notes,Fee,Paid\n";
+      appointments.forEach(appointment => {
+        const doctorName = appointment.doctor ? `${appointment.doctor.firstName} ${appointment.doctor.lastName}` : '';
+        csvContent += `${appointment.id},${doctorName},${appointment.dateTime},${appointment.status},${appointment.purpose || ''},${appointment.duration || ''},${appointment.notes || ''},${appointment.fee || ''},${appointment.feePaid || ''}\n`;
+      });
+      csvContent += "\n";
+      
+      // Prescriptions
+      csvContent += "PRESCRIPTIONS\n";
+      csvContent += "ID,Doctor,Medication Name,Dosage,Frequency,Start Date,End Date,Active,Type,Purpose,Notes\n";
+      prescriptions.forEach(prescription => {
+        const doctorName = prescription.doctor ? `${prescription.doctor.firstName} ${prescription.doctor.lastName}` : '';
+        csvContent += `${prescription.id},${doctorName},${prescription.medicationName || ''},${prescription.dosage || ''},${prescription.frequency || ''},${prescription.startDate},${prescription.endDate || ''},${prescription.isActive || ''},${prescription.type},${prescription.purpose || ''},${prescription.notes || ''}\n`;
+      });
+      csvContent += "\n";
+      
+      // Device Alerts
+      csvContent += "DEVICE ALERTS\n";
+      csvContent += "ID,Timestamp,Alert Type,Message,Severity,Is Read,Is Resolved,Resolution Notes\n";
+      alerts.forEach(alert => {
+        csvContent += `${alert.id},${alert.timestamp},${alert.alertType},${alert.message},${alert.severity},${alert.isRead},${alert.isResolved},${alert.resolutionNotes || ''}\n`;
+      });
+      csvContent += "\n";
+      
+      // Updates
+      csvContent += "MEDICAL UPDATES\n";
+      csvContent += "ID,Timestamp,Type,Content,Source Type,Source Name\n";
+      updates.forEach(update => {
+        csvContent += `${update.id},${update.timestamp},${update.type},${update.content},${update.sourceType || ''},${update.sourceName || ''}\n`;
+      });
+      
+      // Set headers for file download
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="patient_data_${patient.id}_${new Date().toISOString().split('T')[0]}.csv"`);
+      
+      // Send the CSV data
+      return res.send(csvContent);
+    } catch (error) {
+      console.error('Error downloading patient data:', error);
+      return res.status(500).json({ message: 'Error generating patient data export' });
+    }
+  });
 };
 
 // Appointment routes

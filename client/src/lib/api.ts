@@ -67,6 +67,17 @@ export const userApi = {
     return response.json();
   },
   
+  downloadPatientData: async () => {
+    try {
+      // Use window.open to trigger the file download
+      window.open('/api/patients/download-data', '_blank');
+      return true;
+    } catch (error) {
+      console.error("Error downloading patient data:", error);
+      throw error;
+    }
+  },
+  
   getDoctors: async () => {
     const response = await apiRequest("GET", "/api/doctors");
     return response.json();
