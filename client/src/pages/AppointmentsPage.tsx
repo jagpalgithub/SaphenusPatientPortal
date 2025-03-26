@@ -104,7 +104,18 @@ export default function AppointmentsPage() {
       
       console.log("Creating appointment with data:", newAppointment);
       
-      await createAppointment(newAppointment as InsertAppointment);
+      // Convert the date format correctly before sending to API
+      await createAppointment({
+        patientId: newAppointment.patientId,
+        doctorId: newAppointment.doctorId,
+        dateTime: new Date(newAppointment.dateTime),
+        duration: newAppointment.duration,
+        purpose: newAppointment.purpose,
+        notes: newAppointment.notes,
+        status: newAppointment.status,
+        fee: newAppointment.fee,
+        feePaid: newAppointment.feePaid
+      });
       setIsCreateDialogOpen(false);
       createForm.reset();
       toast({
@@ -137,7 +148,11 @@ export default function AppointmentsPage() {
       
       console.log("Updating appointment with data:", updatedAppointment);
       
-      await updateAppointment(currentAppointment.id, updatedAppointment);
+      // Convert the date format correctly before sending to API
+      await updateAppointment(currentAppointment.id, {
+        ...updatedAppointment,
+        dateTime: new Date(updatedAppointment.dateTime)
+      });
       setIsEditDialogOpen(false);
       editForm.reset();
       toast({
