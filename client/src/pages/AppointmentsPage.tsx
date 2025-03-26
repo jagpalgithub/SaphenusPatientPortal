@@ -60,17 +60,17 @@ export default function AppointmentsPage() {
   });
 
   // Split appointments into upcoming and past
-  const upcomingAppointments = appointments?.filter(appointment => 
+  const upcomingAppointments = appointments ? appointments.filter((appointment: any) => 
     !isPast(new Date(appointment.dateTime))
-  ).sort((a, b) => 
+  ).sort((a: any, b: any) => 
     new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
-  ) || [];
+  ) : [];
   
-  const pastAppointments = appointments?.filter(appointment => 
+  const pastAppointments = appointments ? appointments.filter((appointment: any) => 
     isPast(new Date(appointment.dateTime))
-  ).sort((a, b) => 
+  ).sort((a: any, b: any) => 
     new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
-  ) || [];
+  ) : [];
 
   // Handle creating a new appointment
   const handleCreateAppointment = async (values: AppointmentFormValues) => {
