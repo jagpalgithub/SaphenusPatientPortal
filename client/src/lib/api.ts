@@ -219,10 +219,17 @@ export const updatesApi = {
 export const messagesApi = {
   getUserMessages: async (userId: number) => {
     if (!userId) {
+      console.warn('getUserMessages was called without a valid userId');
       return [];
     }
-    const response = await apiRequest("GET", `/api/messages/user/${userId}`);
-    return response.json();
+    try {
+      console.log('Fetching messages for user ID:', userId);
+      const response = await apiRequest("GET", `/api/messages/user/${userId}`);
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      return [];
+    }
   },
   
   getConversation: async (user1Id: number, user2Id: number) => {

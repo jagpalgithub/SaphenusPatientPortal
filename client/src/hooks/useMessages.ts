@@ -20,6 +20,13 @@ export function useMessages() {
     refetch: refetchMessages
   } = useQuery({
     queryKey: ['/api/messages/user', userId],
+    queryFn: async () => {
+      if (!userId) {
+        console.error('useMessages hook: No user ID available for messages query');
+        return [];
+      }
+      return messagesApi.getUserMessages(userId);
+    },
     enabled: !!userId, // Only run query if we have a valid user ID
     staleTime: 1000 * 30, // 30 seconds for messages
   });
@@ -51,13 +58,24 @@ export function useMessages() {
       console.log('Sending message with final data:', messageToSend);
       return messagesApi.createMessage(messageToSend);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Force refetch messages using the correct user ID
       if (userId) {
         console.log('Message sent successfully, invalidating messages for user ID:', userId);
+        
+        // Invalidate query cache
         queryClient.invalidateQueries({ queryKey: ['/api/messages/user', userId] });
-        // Also explicitly refetch to ensure we get the latest data
-        refetchMessages();
+        
+        // Also manually add the new message to the cache to ensure immediate update
+        const currentMessages = queryClient.getQueryData<any[]>(['/api/messages/user', userId]) || [];
+        
+        // Get the message details to add to the cache
+        const newMessage = data;
+        
+        console.log('Updating cache with new message:', newMessage);
+        
+        // Update the query cache with the new message included
+        queryClient.setQueryData<any[]>(['/api/messages/user', userId], [...currentMessages, newMessage]);
       }
     },
     onError: (error) => {
@@ -74,12 +92,22 @@ export function useMessages() {
   const readMutation = useMutation({
     mutationFn: (messageId: number) => 
       messagesApi.markMessageAsRead(messageId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Use normalized user ID for consistency
       if (userId) {
+        // Invalidate query cache
         queryClient.invalidateQueries({ queryKey: ['/api/messages/user', userId] });
-        // Explicitly refetch to ensure we get the latest data
-        refetchMessages();
+        
+        // Also update the cache directly to ensure the UI reflects the change immediately
+        const currentMessages = queryClient.getQueryData(['/api/messages/user', userId]) || [];
+        
+        // Create a new array with the updated message
+        const updatedMessages = currentMessages.map((msg: any) => 
+          msg.id === data.id ? { ...msg, isRead: true } : msg
+        );
+        
+        // Update the cache with the updated messages
+        queryClient.setQueryData(['/api/messages/user', userId], updatedMessages);
       }
     },
     onError: () => {
