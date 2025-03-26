@@ -236,13 +236,13 @@ const setupUserRoutes = (app: Express) => {
       updatedUser.role = existingUser.role;
       updatedUser.username = existingUser.username;
       
-      // Save and return the updated user
-      // Since we don't have an updateUser method, we'll use a workaround to update just the user object
-      // This is less than ideal but works for demo purposes
-      storage.users.set(userId, updatedUser);
+      // Use the createUser method to update the user
+      // Since we don't have a dedicated updateUser method, we can use createUser
+      // which will replace the user with the provided ID
+      const savedUser = await storage.createUser(updatedUser);
       
-      console.log('User updated successfully:', updatedUser);
-      res.json(updatedUser);
+      console.log('User updated successfully:', savedUser);
+      res.json(savedUser);
     } catch (error) {
       console.error('Failed to update user:', error);
       res.status(500).json({ message: 'Failed to update user', error });
