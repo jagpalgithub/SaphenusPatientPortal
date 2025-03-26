@@ -4,31 +4,41 @@ import { useAuth } from "./useAuth";
 import { Prescription, InsertPrescription } from "@shared/schema";
 import { useToast } from "./use-toast";
 
-export function usePrescriptions() {
-  const { profile } = useAuth();
+interface PrescriptionsOptions {
+  enabled?: boolean;
+}
+
+export function usePrescriptions(options: PrescriptionsOptions = {}) {
+  const { profile, user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  
+  // Get the patient ID (from profile, user or default for Anna)
+  const patientId = profile?.id || (user ? (user as any).userId || user.id : null) || 1;
+  const isEnabled = options.enabled !== false;
 
-  // Get all patient prescriptions
+  // Get all patient prescriptions - lower priority
   const { 
     data: allPrescriptions,
     isLoading: isLoadingAll,
     error: allError
   } = useQuery({
-    queryKey: [`/api/prescriptions/patient/${profile?.id}`, profile?.id],
-    enabled: !!profile?.id,
+    queryKey: [`/api/prescriptions/patient/${patientId}`, patientId],
+    enabled: !!patientId && isEnabled,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    meta: { priority: 1 } // Lower priority - not critical for dashboard
   });
 
-  // Get active patient prescriptions
+  // Get active patient prescriptions - higher priority for dashboard
   const { 
     data: activePrescriptions,
     isLoading: isLoadingActive,
     error: activeError
   } = useQuery({
-    queryKey: [`/api/prescriptions/patient/${profile?.id}/active`, profile?.id],
-    enabled: !!profile?.id,
+    queryKey: [`/api/prescriptions/patient/${patientId}/active`, patientId],
+    enabled: !!patientId && isEnabled,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    meta: { priority: 2 } // Medium priority - needed for sidebar counts
   });
 
   // Create prescription mutation (doctor only)
