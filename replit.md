@@ -6,6 +6,18 @@ This is a Patient Management System for Saphenus Medical Technology, focused on 
 
 Preferred communication style: Simple, everyday language.
 
+# Recent Changes
+
+## Git Version Control Setup (August 5, 2025)
+- Enhanced .gitignore configuration for comprehensive file exclusion
+- Created comprehensive README.md with project overview and Git workflow
+- Developed DEPLOYMENT-GUIDE.md with detailed step-by-step deployment instructions
+- Built automated Git workflow script (scripts/git-workflow.sh) for streamlined development
+- Added testing verification script (scripts/test-setup.sh) for environment validation
+- Established branch strategy: main (production) -> develop (testing) -> feature/* (development)
+- Documented manual Git workflow due to Replit Git protections
+- Prepared infrastructure for production deployment synchronization
+
 # System Architecture
 
 ## Frontend Architecture
